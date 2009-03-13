@@ -1,12 +1,12 @@
 ;;; keymap-utils.el --- keymap utilities
 
-;; Copyright (C) 2008 Jonas Bernoulli
+;; Copyright (C) 2008, 2009  Jonas Bernoulli
 
-;; Author: Jonas Bernoulli <jonas@bernoulli.cc>
+;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Created: 20080830
-;; Updated: 20080830
-;; Version: 0.1
-;; Homepage: http://artavatar.net
+;; Updated: 20090313
+;; Version: 0.1.1
+;; Homepage: http://github.com/tarsius/keymap-utils
 ;; Keywords: convenience, extensions
 
 ;; This file is not part of GNU Emacs.
@@ -150,7 +150,9 @@ all parent keymaps of local keymaps that keys are bound to."
 ;;; Keymap details.
 
 (defun kmu-keymap-event-bindings (keymap &optional prefix)
-  "Return alist of all bindings in keymap KEYMAP."
+  "Return alist of all bindings in keymap KEYMAP.
+
+\(fn keymap)"
   ;; Optional PREFIX is for internal use only.
   (let (bindings)
     (map-keymap-internal (lambda (type def)
