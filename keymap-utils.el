@@ -62,7 +62,7 @@
 	       (null (default-value variable)))
 	   (set-default variable keymap))
 	  (t
-	   (error nil)))))
+	   (error "Can't set mapvar: %s" variable)))))
 
 ;;; Keymap Predicates.
 
