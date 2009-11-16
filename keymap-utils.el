@@ -4,8 +4,8 @@
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Created: 20080830
-;; Updated: 20090313
-;; Version: 0.1.1
+;; Updated: 20091116
+;; Version: 0.1.1+
 ;; Homepage: http://github.com/tarsius/keymap-utils
 ;; Keywords: convenience, extensions
 
@@ -46,7 +46,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(with-no-warnings (require 'cl)) ; copy-list, mapcan
 
 ;;; Redefining Keymaps.
 
