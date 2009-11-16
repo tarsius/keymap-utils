@@ -52,10 +52,6 @@
 
 (defun kmu-set-mapvar (variable keymap)
   (let ((tail (car (last keymap))))
-    (when (and (> (length keymap) 1)
-	       (symbolp tail))
-      (setq keymap (butlast keymap))
-      (set-keymap-parent keymap (symbol-value tail)))
     (cond ((mapvarp variable)
 	   (setcdr (default-value variable) (cdr keymap)))
 	  ((or (not (boundp variable))
