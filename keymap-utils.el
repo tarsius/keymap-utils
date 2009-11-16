@@ -51,12 +51,13 @@
 ;;; Redefining Keymaps.
 
 (defun kmu-set-mapvar (variable keymap)
+  "Set the cdr of the default value of VARIABLE to the cdr of KEYMAP."
   (let ((tail (car (last keymap))))
     (cond ((mapvarp variable)
 	   (setcdr (default-value variable) (cdr keymap)))
 	  ((or (not (boundp variable))
 	       (null (default-value variable)))
-	   (set-default variable keymap))
+	   (set-default variable (cons 'keymap (cdr keymap))))
 	  (t
 	   (error "Can't set mapvar: %s" variable)))))
 
