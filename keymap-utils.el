@@ -1,11 +1,11 @@
 ;;; keymap-utils.el --- keymap utilities
 
-;; Copyright (C) 2008, 2009  Jonas Bernoulli
+;; Copyright (C) 2008, 2009, 2010  Jonas Bernoulli
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Created: 20080830
-;; Updated: 20091116
-;; Version: 0.2
+;; Updated: 20100307
+;; Version: 0.2.1
 ;; Homepage: http://github.com/tarsius/keymap-utils
 ;; Keywords: convenience, extensions
 
@@ -45,7 +45,7 @@
 
 ;;; Code:
 
-(with-no-warnings (require 'cl)) ; copy-list, mapcan
+(require 'cl) ; copy-list, mapcan
 
 ;;; Redefining Keymaps.
 
@@ -131,7 +131,7 @@ A sparse keymap is a keymap whose second element is not a char-table."
 (defun kmu-lookup-local-key (keymap key &optional accept-default)
   "In keymap KEYMAP, look up key sequence KEY.  Return the definition.
 
-Unlike `lookup-key' (which see) this doesn't concider bindings made
+Unlike `lookup-key' (which see) this doesn't consider bindings made
 in KEYMAP's parent keymap."
   (lookup-key (kmu-strip-keymap keymap) key accept-default))
 
@@ -148,8 +148,9 @@ all parent keymaps of local keymaps that keys are bound to."
 (defun kmu-keymap-event-bindings (keymap &optional prefix)
   "Return alist of all bindings in keymap KEYMAP.
 
-\(fn keymap)"
-  ;; Optional PREFIX is for internal use only.
+The car is the event and the cdr the command bound to it.  If PREFIX is
+non-nil, it is a vector of input events leading up to the event and is
+included in the the car of the respective entry."
   (let (bindings)
     (map-keymap-internal (lambda (type def)
 			   (if (and (eq type 27)
