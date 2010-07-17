@@ -72,12 +72,12 @@ VARIABLE isn't evaluated but KEYMAP is.  Also see `kmu-set-mapvar*'."
 (defun kmu-keymap-variable-p (object)
   "Return t if OBJECT is a symbol whose variable definition is a keymap."
   (and (symbolp object)
-       (boundp object)
+       (boundp  object)
        (keymapp (symbol-value object))))
 
 (defun kmu-keymap-list-p (object)
-  "Return t if object has the form (keymap . ALIST)."
-  (and (listp object)
+  "Return t if OBJECT is a list whose first element is the symbol `keymap'."
+  (and (listp   object)
        (keymapp object)))
 
 (defun kmu-prefix-command-p (object)
