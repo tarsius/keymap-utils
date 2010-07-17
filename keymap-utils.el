@@ -176,21 +176,38 @@ included in the the car of the respective entry."
 		(list elt)))
 	      bindings)))
 
-(defun kmu-keymap-parent (keymap)
+(defun kmu-keymap-variable (--keymap-- &rest exclude)
+  "Return a symbol whose value is KEYMAP.
+
+Comparison is done with `eq'.  If there are multiple variables
+whose value is KEYMAP it is undefined which is returned.
+
+Ignore symbols listed in optional EXCLUDE.  Use this to prevent
+symbols from being returned which are dynamically bound to KEYMAP."
+  (setq exclude (append '(--keymap-- --match-- --symbol--) exclude))
+  (let (--match--)
+    (do-symbols (--symbol--)
+      (and (not (memq --symbol-- exclude))
+	   (boundp --symbol--)
+	   (eq (symbol-value --symbol--) --keymap--)
+	   (setq --match-- --symbol--)
+	   (return nil)))
+    --match--))
+
+(defun kmu-keymap-parent (keymap &optional need-symbol &rest exclude)
   "Return the parent keymap of KEYMAP.
 
-If a variable can be found that holds the parent keymap return that
-symbol.  Otherwise return the parent keymap itself, or if keymap has
-no parent keymap return nil.  If there is more than one variable
-holding the parent keymap it is unpredictable which is returned."
-  (let ((parmap (keymap-parent keymap)))
-    (when parmap
-      (or (do-symbols (symbol)
-	    (and (not (memq symbol '(symbol parmap)))
-		 (boundp symbol)
-		 (eq (symbol-value symbol) parmap)
-		 (return symbol)))
-	  parmap))))
+If a variable exists whose value is KEYMAP's parent keymap return that.
+Otherwise if KEYMAP does not have a parent keymap return nil.  Otherwise
+if KEYMAP has a parent keymap but no variable is bound to it return the
+parent keymap, unless optional NEED-SYMBOL is non-nil in which case nil
+is returned.
+
+Also see `kmu-keymap-variable'."
+  (let ((--parmap-- (keymap-parent keymap)))
+    (when --parmap--
+      (or (kmu-keymap-variable --parmap-- '--parmap--)
+	  (unless need-symbol --parmap--)))))
 
 ;;; Converters.
 
