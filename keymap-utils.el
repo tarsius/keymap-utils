@@ -209,56 +209,5 @@ Also see `kmu-keymap-variable'."
       (or (kmu-keymap-variable --parmap-- '--parmap--)
 	  (unless need-symbol --parmap--)))))
 
-;;; Converters.
-
-(defun kmu-convert-full-keymap-to-sparse (keymap)
-  "Convert full keymap KEYMAP to a sparse keymap and return it.
-The original keymap is not altered."
-  (unless (kmu-full-keymap-p keymap)
-    (error "Not a full keymap."))
-  (let ((new-map (make-sparse-keymap)))
-    (set-keymap-parent new-map (keymap-parent keymap))
-    (loop for event being the key-codes of keymap
-	  using (key-bindings binding) do
-	  (define-key new-map event binding))
-    new-map))
-
-(defun kmu-nconvert-full-keymap-to-sparse (keymap)
-  "Convert full keymap KEYMAP to a sparse keymap and return it.
-The original keymap _is_ altered."
-  (unless (kmu-full-keymap-p keymap)
-    (error "Not a full keymap."))
-  (let ((temp-map (cons 'keymap (list (cadr keymap)))))
-    (setcdr keymap (keymap-parent keymap))
-    (set-keymap-parent keymap (keymap-parent temp-map))
-    (loop for event being the key-codes of temp-map
-	  using (key-bindings binding) do
-	  (define-key keymap event binding))
-    keymap))
-
-(defun kmu-convert-sparse-keymap-to-full (keymap)
-  "Convert sparse keymap KEYMAP to a full keymap and return it.
-The original keymap is not altered."
-  (unless (kmu-sparse-keymap-p keymap)
-    (error "Not a sparse keymap."))
-  (let ((new-map (make-keymap)))
-    (set-keymap-parent new-map (keymap-parent keymap))
-    (loop for event being the key-codes of keymap
-	  using (key-bindings binding) do
-	  (define-key new-map event binding))
-    new-map))
-
-(defun kmu-nconvert-sparse-keymap-to-full (keymap)
-  "Convert sparse keymap KEYMAP to a full keymap and return it.
-The original keymap _is_ altered."
-  (unless (kmu-sparse-keymap-p keymap)
-    (error "Not a sparse keymap."))
-  (let ((temp-map (copy-keymap keymap)))
-    (setcdr keymap (keymap-parent keymap))
-    (loop for event being the key-codes of temp-map
-	  using (key-bindings binding) do
-	  (define-key keymap event binding))
-    keymap))
-
 (provide 'keymap-utils)
 ;;; keymap-utils.el ends here
