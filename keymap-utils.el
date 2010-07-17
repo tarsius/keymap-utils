@@ -149,33 +149,6 @@ events in KEYMAP are bound to."
 
 ;;; Keymap details.
 
-(defun kmu-keymap-event-bindings (keymap &optional prefix)
-  "Return alist of all bindings in keymap KEYMAP.
-
-The car is the event and the cdr the command bound to it.  If PREFIX is
-non-nil, it is a vector of input events leading up to the event and is
-included in the the car of the respective entry."
-  (let (bindings)
-    (map-keymap-internal (lambda (type def)
-			   (if (and (eq type 27)
-				    (kmu-keymap-list-p def))
-			       (setq bindings
-				     (nconc (kmu-keymap-event-bindings
-					     def (vector 27))
-					    bindings))
-			     (push (cons (if (consp type)
-					     (copy-list type)
-					   (vconcat prefix (list type)))
-					 def)
-				   bindings)))
-			 keymap)
-    (mapcan (lambda (elt)
-	      (if (consp (car elt))
-		  (loop for i from (caar elt) to (cdar elt)
-			collect (cons (vector i) (cdr elt)))
-		(list elt)))
-	      bindings)))
-
 (defun kmu-keymap-variable (--keymap-- &rest exclude)
   "Return a symbol whose value is KEYMAP.
 
