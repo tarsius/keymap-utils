@@ -104,7 +104,23 @@ A sparse keymap is a keymap whose second element is not a char-table."
 
 ;;; Key Lookup.
 
-(defun kmu-strip-keymap (keymap)
+(defun kmu-lookup-local-key (keymap key &optional accept-default)
+  "In KEYMAP, look up key sequence KEY.  Return the definition.
+
+Unlike `lookup-key' (which see) this doesn't consider bindings made
+in KEYMAP's parent keymap."
+  (lookup-key (kmu--strip-keymap keymap) key accept-default))
+
+(defun kmu-lookup-parent-key (keymap key &optional accept-default)
+  "In KEYMAP's parent keymap, look up key sequence KEY.
+Return the definition.
+
+Unlike `lookup-key' (which see) this only conciders bindings made in
+KEYMAP's parent keymap and recursivly all parent keymaps of keymaps
+events in KEYMAP are bound to."
+  (lookup-key (kmu--collect-parmaps keymap) key accept-default))
+
+(defun kmu--strip-keymap (keymap)
   "Return a copy of KEYMAP with all parent keymaps removed."
   (flet ((strip-keymap (keymap)
 	   (set-keymap-parent keymap nil)
@@ -116,7 +132,7 @@ A sparse keymap is a keymap whose second element is not a char-table."
 	   keymap))
     (strip-keymap (copy-keymap keymap))))
 
-(defun kmu-collect-parmaps (keymap)
+(defun kmu--collect-parmaps (keymap)
   "Return a copy of KEYMAP with all local bindings removed."
   (flet ((collect-parmaps (keymap)
 	   (let ((new-keymap (make-sparse-keymap)))
@@ -130,22 +146,6 @@ A sparse keymap is a keymap whose second element is not a char-table."
 			  (collect-parmaps binding))))
 	     new-keymap)))
     (collect-parmaps (copy-keymap keymap))))
-
-(defun kmu-lookup-local-key (keymap key &optional accept-default)
-  "In KEYMAP, look up key sequence KEY.  Return the definition.
-
-Unlike `lookup-key' (which see) this doesn't consider bindings made
-in KEYMAP's parent keymap."
-  (lookup-key (kmu-strip-keymap keymap) key accept-default))
-
-(defun kmu-lookup-parent-key (keymap key &optional accept-default)
-  "In KEYMAP's parent keymap, look up key sequence KEY.
-Return the definition.
-
-Unlike `lookup-key' (which see) this only conciders bindings made in
-KEYMAP's parent keymap and recursivly all parent keymaps of keymaps
-events in KEYMAP are bound to."
-  (lookup-key (kmu-collect-parmaps keymap) key accept-default))
 
 ;;; Keymap details.
 
