@@ -75,22 +75,16 @@ VARIABLE isn't evaluated but KEYMAP is.  Also see `kmu-set-mapvar*'."
        (boundp object)
        (keymapp (symbol-value object))))
 
-(defalias 'mapvarp 'kmu-keymap-variable-p)
-
 (defun kmu-keymap-list-p (object)
   "Return t if object has the form (keymap . ALIST)."
   (and (listp object)
        (keymapp object)))
-
-(defalias 'maplistp 'kmu-keymap-list-p)
 
 (defun kmu-prefix-command-p (object)
   "Return t if OBJECT is a symbol whose function definition is a keymap."
   (and (symbolp object)
        (fboundp object)
        (keymapp (symbol-function object))))
-
-(defalias 'prefixcmdp 'kmu-prefix-command-p)
 
 (defmacro kmu-full-keymap-p (object)
   "Return t if OBJECT is or holds a full keymap.
