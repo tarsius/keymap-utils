@@ -86,21 +86,21 @@ VARIABLE isn't evaluated but KEYMAP is.  Also see `kmu-set-mapvar*'."
        (fboundp object)
        (keymapp (symbol-function object))))
 
-(defmacro kmu-full-keymap-p (object)
-  "Return t if OBJECT is or holds a full keymap.
+(defun kmu-full-keymap-p (object)
+  "Return t if OBJECT is a full keymap.
 A full keymap is a keymap whose second element is a char-table."
-  `(if (kmu-prefix-command-p (quote ,object))
-       (char-table-p (cadr (symbol-function (quote ,object))))
-     (and (keymapp ,object)
-	  (char-table-p (cadr ,object)))))
+  (if (kmu-prefix-command-p object)
+      (char-table-p (cadr (symbol-function object)))
+    (and (keymapp object)
+	 (char-table-p (cadr object)))))
 
-(defmacro kmu-sparse-keymap-p (object)
-  "Return t if OBJECT is or holds a sparse keymap.
+(defun kmu-sparse-keymap-p (object)
+  "Return t if OBJECT is a sparse keymap.
 A sparse keymap is a keymap whose second element is not a char-table."
-  `(if (kmu-prefix-command-p (quote ,object))
-       (not (char-table-p (cadr (symbol-function (quote ,object)))))
-     (and (keymapp ,object)
-	  (not (char-table-p (cadr ,object))))))
+  (if (kmu-prefix-command-p object)
+      (not (char-table-p (cadr (symbol-function object))))
+    (and (keymapp object)
+	 (not (char-table-p (cadr object))))))
 
 ;;; Key Lookup.
 
