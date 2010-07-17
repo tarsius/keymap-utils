@@ -47,27 +47,7 @@
 
 (require 'cl) ; copy-list, mapcan
 
-;;; Redefining Keymaps.
-
-(defun kmu-set-mapvar* (variable keymap)
-  "Set the cdr of the default value of VARIABLE to the cdr of KEYMAP.
-Both VARIABLE and KEYMAP are evaluated.  Also see `kmu-set-mapvar'."
-  (let ((tail (car (last keymap))))
-    (cond ((mapvarp variable)
-	   (setcdr (default-value variable) (cdr keymap)))
-	  ((or (not (boundp variable))
-	       (not (default-value variable)))
-	   (set-default variable (cons 'keymap (cdr keymap))))
-	  (t
-	   (error "Can't set keymap variable: %s" variable)))))
-
-(defmacro kmu-set-mapvar (variable keymap)
-  "Set the cdr of the default value of VARIABLE to the cdr of KEYMAP.
-VARIABLE isn't evaluated but KEYMAP is.  Also see `kmu-set-mapvar*'."
-  (declare (indent 1))
-  `(kmu-set-mapvar* ',variable ,keymap))
-
-;;; Keymap Predicates.
+;;; Predicates.
 
 (defun kmu-keymap-variable-p (object)
   "Return t if OBJECT is a symbol whose variable definition is a keymap."
@@ -147,7 +127,7 @@ events in KEYMAP are bound to."
 	     new-keymap)))
     (collect-parmaps (copy-keymap keymap))))
 
-;;; Keymap details.
+;;; Keymap Variables.
 
 (defun kmu-keymap-variable (--keymap-- &rest exclude)
   "Return a symbol whose value is KEYMAP.
@@ -181,6 +161,24 @@ Also see `kmu-keymap-variable'."
     (when --parmap--
       (or (kmu-keymap-variable --parmap-- '--parmap--)
 	  (unless need-symbol --parmap--)))))
+
+(defun kmu-set-mapvar* (variable keymap)
+  "Set the cdr of the default value of VARIABLE to the cdr of KEYMAP.
+Both VARIABLE and KEYMAP are evaluated.  Also see `kmu-set-mapvar'."
+  (let ((tail (car (last keymap))))
+    (cond ((mapvarp variable)
+	   (setcdr (default-value variable) (cdr keymap)))
+	  ((or (not (boundp variable))
+	       (not (default-value variable)))
+	   (set-default variable (cons 'keymap (cdr keymap))))
+	  (t
+	   (error "Can't set keymap variable: %s" variable)))))
+
+(defmacro kmu-set-mapvar (variable keymap)
+  "Set the cdr of the default value of VARIABLE to the cdr of KEYMAP.
+VARIABLE isn't evaluated but KEYMAP is.  Also see `kmu-set-mapvar*'."
+  (declare (indent 1))
+  `(kmu-set-mapvar* ',variable ,keymap))
 
 (provide 'keymap-utils)
 ;;; keymap-utils.el ends here
