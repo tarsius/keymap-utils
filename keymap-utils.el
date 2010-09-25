@@ -4,7 +4,7 @@
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Created: 20080830
-;; Updated: 20100713
+;; Updated: 20100925
 ;; Version: 0.3_pre
 ;; Homepage: http://github.com/tarsius/keymap-utils
 ;; Keywords: convenience, extensions
@@ -165,14 +165,15 @@ Also see `kmu-keymap-variable'."
 (defun kmu-set-mapvar* (variable keymap)
   "Set the cdr of the default value of VARIABLE to the cdr of KEYMAP.
 Both VARIABLE and KEYMAP are evaluated.  Also see `kmu-set-mapvar'."
-  (let ((tail (car (last keymap))))
-    (cond ((mapvarp variable)
-	   (setcdr (default-value variable) (cdr keymap)))
-	  ((or (not (boundp variable))
-	       (not (default-value variable)))
-	   (set-default variable (cons 'keymap (cdr keymap))))
-	  (t
-	   (error "Can't set keymap variable: %s" variable)))))
+  (cond ((kmu-keymap-variable-p variable)
+	 (setcdr (default-value variable) (cdr keymap)))
+	((or (not (boundp variable))
+	     (not (default-value variable)))
+	 (set-default variable (cons 'keymap (cdr keymap))))
+	(t
+	 (error "Can't set variable, it's value isn't a keymap: %s"
+		variable))))
+
 
 (defmacro kmu-set-mapvar (variable keymap)
   "Set the cdr of the default value of VARIABLE to the cdr of KEYMAP.
