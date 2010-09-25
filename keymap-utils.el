@@ -174,12 +174,20 @@ Both VARIABLE and KEYMAP are evaluated.  Also see `kmu-set-mapvar'."
 	 (error "Can't set variable, it's value isn't a keymap: %s"
 		variable))))
 
-
-(defmacro kmu-set-mapvar (variable keymap)
+(defmacro kmu-set-mapvar (variable eval-after-load keymap)
   "Set the cdr of the default value of VARIABLE to the cdr of KEYMAP.
-VARIABLE isn't evaluated but KEYMAP is.  Also see `kmu-set-mapvar*'."
-  (declare (indent 1))
-  `(kmu-set-mapvar* ',variable ,keymap))
+VARIABLE isn't evaluated but KEYMAP is.
+
+This macro expands to a call to `kmu-set-mapvar*' (which see).
+If EVAL-AFTER-LOAD is non-nil this is additionally wrapped in an
+`eval-after-load' form (which see) with EVAL-AFTER-LOAD as the FILE
+argument."
+  (declare (indent 2) (debug t))
+  (if eval-after-load
+      `(eval-after-load ,eval-after-load
+	 (kmu-set-mapvar* ',variable ,keymap))
+    `(kmu-set-mapvar* ',variable ,keymap)))
+
 
 (provide 'keymap-utils)
 ;;; keymap-utils.el ends here
