@@ -180,5 +180,38 @@ command."
 	when (kmu-prefix-command-p symbol)
 	collect symbol))
 
+;;; Keymap Mapping.
+
+(defun kmu-map-keymap (function keymap &optional pretty prefix)
+  "Call FUNCTION once for each event sequence binding in KEYMAP.
+FUNCTION is called with two arguments: an event sequence (a vector), and
+the definition the last event in that sequence it is bound to.  Each event
+may also be a character range.
+
+When the definition an event is bound to is a prefix key but not a prefix
+command then instead of calling FUNCTION with the event and it's definition
+once, FUNCTION is called for each event binding in the sub-keymap.  This is
+done recursively until reaching an event binding that is not a prefix, in
+each branch.  FUNCTION is called with the sequence that leads to the event
+binding, relative to KEYMAP, as first argument and the final binding as
+second argument.
+
+If KEYMAP has a parent, this function returns it without processing it.
+Optional PREFIX is used internally to do this; do not set it yourself.
+
+If optional PRETTY is non-nil call FUNCTION with a string suitable for
+`kbd' instead of a vector as first argument (provided it's not a
+character range)."
+  (map-keymap-internal
+   (lambda (key def)
+     (let ((vec (vconcat prefix (list key))))
+       (cond
+	((kmu-keymap-list-p def) (kmu-map-keymap function def pretty vec))
+	((eq def 'ESC-prefix)    (kmu-map-keymap function esc-map pretty vec))
+	((consp key)             (funcall function key def))
+	(pretty                  (funcall function (key-description vec) def))
+	(t                       (funcall function key def)))))
+   keymap))
+
 (provide 'keymap-utils)
 ;;; keymap-utils.el ends here
