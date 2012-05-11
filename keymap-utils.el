@@ -160,5 +160,25 @@ Also see `kmu-keymap-variable'."
       (or (kmu-keymap-variable --parmap-- '--parmap--)
 	  (unless need-symbol --parmap--)))))
 
+(defun kmu-mapvar-list (&optional exclude-prefix-commands)
+  "Return a list of all keymap variables.
+
+If optional EXCLUDE-PREFIX-COMMANDS is non-nil exclude all variables
+whose variable definition is also the function definition of a prefix
+command."
+  (let ((prefix-commands
+	 (when exclude-prefix-commands
+	   (kmu-prefix-command-list))))
+    (loop for symbol being the symbols
+	  when (kmu-keymap-variable-p symbol)
+	  when (not (memq symbol prefix-commands))
+	  collect symbol)))
+
+(defun kmu-prefix-command-list ()
+  "Return a list of all prefix commands."
+  (loop for symbol being the symbols
+	when (kmu-prefix-command-p symbol)
+	collect symbol))
+
 (provide 'keymap-utils)
 ;;; keymap-utils.el ends here
