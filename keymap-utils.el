@@ -1,10 +1,10 @@
 ;;; keymap-utils.el --- keymap utilities
 
-;; Copyright (C) 2008-2011  Jonas Bernoulli
+;; Copyright (C) 2008-2012  Jonas Bernoulli
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Created: 20080830
-;; Version: 0.4.0
+;; Version: 0.4.0-git
 ;; Homepage: https://github.com/tarsius/keymap-utils
 ;; Keywords: convenience, extensions
 
@@ -52,11 +52,17 @@
   (and (listp   object)
        (keymapp object)))
 
-(defun kmu-prefix-command-p (object)
-  "Return t if OBJECT is a symbol whose function definition is a keymap."
+(defun kmu-prefix-command-p (object &optional boundp)
+  "Return t if OBJECT is a symbol whose function definition is a keymap.
+The value returned is the keymap stored as OBJECTS variable definition or
+else the mapvar which holds the keymap."
   (and (symbolp object)
        (fboundp object)
-       (keymapp (symbol-function object))))
+       (keymapp (symbol-function object))
+       (if (and (boundp  object)
+		(keymapp (symbol-value object)))
+	   (symbol-value object)
+	 (kmu-keymap-variable (symbol-function object)))))
 
 (defun kmu-full-keymap-p (object)
   "Return t if OBJECT is a full keymap.
