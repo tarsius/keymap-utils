@@ -38,6 +38,7 @@
 ;;; Code:
 
 (require 'cl)
+(require 'edmacro)
 
 ;;; Predicates.
 
@@ -212,6 +213,56 @@ character range)."
 	(pretty                  (funcall function (key-description vec) def))
 	(t                       (funcall function key def)))))
    keymap))
+
+;;; Defining Bindings.
+
+(defun kmu-undefine-key (keymap key)
+  (define-key keymap key nil)
+  (delete (cons key nil) keymap))
+
+(defmacro kmu-define-keys (keymap &rest plist)
+  "Define all keys in PLIST in KEYMAP."
+  (declare (indent 1))
+  `(kmu-define-keys-1 ',keymap ',plist))
+
+(defun kmu-define-keys-1 (keymap plist &optional safe)
+  (cond ((null keymap)
+	 (error "Can't set keys in a null keymap"))
+	((symbolp keymap)
+	 (setq keymap (symbol-value keymap)))
+	((keymapp keymap))
+	((listp keymap)
+	 (unless (kmu-prefix-command-p (caddr keymap))
+	   (set (caddr keymap) nil)
+	   (define-prefix-command (caddr keymap) (cadddr keymap)))
+	 (define-key (symbol-value (car keymap)) (cadr keymap) (caddr keymap))
+	 (setq keymap (symbol-function (caddr keymap)))))
+  (let (key)
+    (while plist
+      (etypecase (car plist)
+	(keyword (case (car plist)
+		   (:undefine (mapc (apply-partially 'kmu-undefine-key keymap)
+				    (cadr plist)))
+		   )
+		 (setq key nil plist (cddr plist)))
+	(string  (setq key (pop plist)))
+	(symbol  (setq key (symbol-value (pop plist))))
+	(cons    (setq key (vector (caar plist)))
+		 (when (= (1+ (caar plist)) (cdar plist))
+		   (setq plist (cdr plist)))))
+      (when key
+	(setq key (edmacro-parse-keys key))
+	(if (or (not safe)
+		(eq (lookup-key keymap key) 'undefined))
+	    (define-key keymap key (pop plist))
+	  (pop plist))))))
+
+(defmacro kmu-restore-global-bindings (mapvar &rest events)
+  (declare (indent 1))
+  `(let ((map ,mapvar))
+     (dolist (e '(,@events))
+       (setq  e (edmacro-parse-keys e))
+       (define-key map e (lookup-key (current-global-map) e)))))
 
 (provide 'keymap-utils)
 ;;; keymap-utils.el ends here
