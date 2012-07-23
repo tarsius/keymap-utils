@@ -29,11 +29,7 @@
 ;;
 ;; * keymap predicates (e.g. `kmu-keymap-variable-p')
 ;; * key lookup (e.g. `kmu-lookup-parent-key')
-;;
-;; Versions prior to 0.4.0 also contained the following.
-;;
-;; * replace keymap in place (e.g. `kmu-set-mapvar')
-;; * keymap pretty printing (`kmu-pp-keymap'; VERY experimental)
+;; * and more
 
 ;;; Code:
 
@@ -54,9 +50,9 @@
        (keymapp object)))
 
 (defun kmu-prefix-command-p (object &optional boundp)
-  "Return t if OBJECT is a symbol whose function definition is a keymap.
+  "Return non-nil if OBJECT is a symbol whose function definition is a keymap.
 The value returned is the keymap stored as OBJECTS variable definition or
-else the mapvar which holds the keymap."
+else the variable which holds the keymap."
   (and (symbolp object)
        (fboundp object)
        (keymapp (symbol-function object))
@@ -100,7 +96,10 @@ events in KEYMAP are bound to."
   (lookup-key (kmu--collect-parmaps keymap) key accept-default))
 
 (defun kmu--strip-keymap (keymap)
-  "Return a copy of KEYMAP with all parent keymaps removed."
+  "Return a copy of KEYMAP with all parent keymaps removed.
+
+This not only removes the parent keymap of KEYMAP but also recursively
+the parent keymap of any keymap a key in KEYMAP is bound to."
   (flet ((strip-keymap (keymap)
 	   (set-keymap-parent keymap nil)
 	   (loop for key being the key-code of keymap
@@ -134,8 +133,8 @@ events in KEYMAP are bound to."
 Comparison is done with `eq'.  If there are multiple variables
 whose value is KEYMAP it is undefined which is returned.
 
-Ignore symbols listed in optional EXCLUDE.  Use this to prevent
-symbols from being returned which are dynamically bound to KEYMAP."
+Ignore symbols listed in optional EXCLUDE.  Use this to prevent a
+symbol from being returned which is dynamically bound to KEYMAP."
   (setq exclude (append '(--keymap-- --match-- --symbol--) exclude))
   (let (--match--)
     (do-symbols (--symbol--)
