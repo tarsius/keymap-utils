@@ -227,6 +227,15 @@ character range)."
   (define-key keymap key nil)
   (delete (cons key nil) keymap))
 
+(defun kmu-current-local-mapvar ()
+  "Echo the variable bound to the current local keymap."
+  (interactive)
+  (let ((mapvar (kmu-keymap-variable (current-local-map))))
+    (when (called-interactively-p 'any)
+      (message (if mapvar
+		   (symbol-name mapvar)
+		 "Cannot determine current local mapvar")))
+    mapvar))
 
 (provide 'keymap-utils)
 ;;; keymap-utils.el ends here
