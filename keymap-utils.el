@@ -181,6 +181,13 @@ command."
 	when (kmu-prefix-command-p symbol)
 	collect symbol))
 
+(defun kmu-read-mapvar (prompt)
+  (let ((mapvar (intern (completing-read prompt obarray
+					 'kmu-keymap-variable-p t nil nil))))
+    (if (eq mapvar '##)
+	(error "No mapvar selected")
+      mapvar)))
+
 ;;; Keymap Mapping.
 
 (defun kmu-map-keymap (function keymap &optional pretty prefix)
