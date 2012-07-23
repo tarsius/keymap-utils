@@ -127,7 +127,7 @@ the parent keymap of any keymap a key in KEYMAP is bound to."
 
 ;;; Keymap Variables.
 
-(defun kmu-keymap-variable (--keymap-- &rest exclude)
+(defun kmu-keymap-variable (keymap &rest exclude)
   "Return a symbol whose value is KEYMAP.
 
 Comparison is done with `eq'.  If there are multiple variables
@@ -135,15 +135,16 @@ whose value is KEYMAP it is undefined which is returned.
 
 Ignore symbols listed in optional EXCLUDE.  Use this to prevent a
 symbol from being returned which is dynamically bound to KEYMAP."
-  (setq exclude (append '(--keymap-- --match-- --symbol--) exclude))
-  (let (--match--)
-    (do-symbols (--symbol--)
-      (and (not (memq --symbol-- exclude))
-	   (boundp --symbol--)
-	   (eq (symbol-value --symbol--) --keymap--)
-	   (setq --match-- --symbol--)
-	   (return nil)))
-    --match--))
+  (when (keymapp keymap)
+    (setq exclude (append '(keymap --match-- --symbol--) exclude))
+    (let (--match--)
+      (do-symbols (--symbol--)
+	(and (not (memq --symbol-- exclude))
+	     (boundp --symbol--)
+	     (eq (symbol-value --symbol--) keymap)
+	     (setq --match-- --symbol--)
+	     (return nil)))
+      --match--)))
 
 (defun kmu-keymap-parent (keymap &optional need-symbol &rest exclude)
   "Return the parent keymap of KEYMAP.
