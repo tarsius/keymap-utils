@@ -4,7 +4,7 @@
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Created: 20080830
-;; Version: 0.4.0-git
+;; Version: 0.4.1
 ;; Homepage: https://github.com/tarsius/keymap-utils
 ;; Keywords: convenience, extensions
 
