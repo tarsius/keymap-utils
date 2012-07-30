@@ -36,6 +36,9 @@
 (require 'cl)
 (require 'edmacro)
 
+(require 'naked nil t)
+(declare-function 'naked-key-description "naked")
+
 ;;; Predicates.
 
 (defun kmu-keymap-variable-p (object)
@@ -217,6 +220,7 @@ character range)."
 	((kmu-keymap-list-p def) (kmu-map-keymap function def pretty vec))
 	((eq def 'ESC-prefix)    (kmu-map-keymap function esc-map pretty vec))
 	((consp key)             (funcall function key def))
+	((eq pretty 'naked)      (funcall function (naked-key-description vec) def))
 	(pretty                  (funcall function (key-description vec) def))
 	(t                       (funcall function key def)))))
    keymap))
