@@ -60,9 +60,9 @@ else the variable which holds the keymap."
        (fboundp object)
        (keymapp (symbol-function object))
        (if (and (boundp  object)
-		(keymapp (symbol-value object)))
-	   (symbol-value object)
-	 (kmu-keymap-variable (symbol-function object)))))
+                (keymapp (symbol-value object)))
+           (symbol-value object)
+         (kmu-keymap-variable (symbol-function object)))))
 
 (defun kmu-full-keymap-p (object)
   "Return t if OBJECT is a full keymap.
@@ -70,7 +70,7 @@ A full keymap is a keymap whose second element is a char-table."
   (if (kmu-prefix-command-p object)
       (char-table-p (cadr (symbol-function object)))
     (and (keymapp object)
-	 (char-table-p (cadr object)))))
+         (char-table-p (cadr object)))))
 
 (defun kmu-sparse-keymap-p (object)
   "Return t if OBJECT is a sparse keymap.
@@ -78,7 +78,7 @@ A sparse keymap is a keymap whose second element is not a char-table."
   (if (kmu-prefix-command-p object)
       (not (char-table-p (cadr (symbol-function object))))
     (and (keymapp object)
-	 (not (char-table-p (cadr object))))))
+         (not (char-table-p (cadr object))))))
 
 ;;; Key Lookup.
 
@@ -104,28 +104,28 @@ events in KEYMAP are bound to."
 This not only removes the parent keymap of KEYMAP but also recursively
 the parent keymap of any keymap a key in KEYMAP is bound to."
   (flet ((strip-keymap (keymap)
-	   (set-keymap-parent keymap nil)
-	   (loop for key being the key-code of keymap
-		 using (key-binding binding) do
-		 (and (keymapp binding)
-		      (not (kmu-prefix-command-p binding))
-		      (strip-keymap binding)))
-	   keymap))
+           (set-keymap-parent keymap nil)
+           (loop for key being the key-code of keymap
+                 using (key-binding binding) do
+                 (and (keymapp binding)
+                      (not (kmu-prefix-command-p binding))
+                      (strip-keymap binding)))
+           keymap))
     (strip-keymap (copy-keymap keymap))))
 
 (defun kmu--collect-parmaps (keymap)
   "Return a copy of KEYMAP with all local bindings removed."
   (flet ((collect-parmaps (keymap)
-	   (let ((new-keymap (make-sparse-keymap)))
-	     (set-keymap-parent new-keymap (keymap-parent keymap))
-	     (set-keymap-parent keymap nil)
-	     (loop for key being the key-code of keymap
-		   using (key-binding binding) do
-		   (and (keymapp binding)
-			(not (kmu-prefix-command-p binding))
-			(define-key new-keymap (vector key)
-			  (collect-parmaps binding))))
-	     new-keymap)))
+           (let ((new-keymap (make-sparse-keymap)))
+             (set-keymap-parent new-keymap (keymap-parent keymap))
+             (set-keymap-parent keymap nil)
+             (loop for key being the key-code of keymap
+                   using (key-binding binding) do
+                   (and (keymapp binding)
+                        (not (kmu-prefix-command-p binding))
+                        (define-key new-keymap (vector key)
+                          (collect-parmaps binding))))
+             new-keymap)))
     (collect-parmaps (copy-keymap keymap))))
 
 ;;; Keymap Variables.
@@ -142,11 +142,11 @@ symbol from being returned which is dynamically bound to KEYMAP."
     (setq exclude (append '(keymap --match-- --symbol--) exclude))
     (let (--match--)
       (do-symbols (--symbol--)
-	(and (not (memq --symbol-- exclude))
-	     (boundp --symbol--)
-	     (eq (symbol-value --symbol--) keymap)
-	     (setq --match-- --symbol--)
-	     (return nil)))
+        (and (not (memq --symbol-- exclude))
+             (boundp --symbol--)
+             (eq (symbol-value --symbol--) keymap)
+             (setq --match-- --symbol--)
+             (return nil)))
       --match--)))
 
 (defun kmu-keymap-parent (keymap &optional need-symbol &rest exclude)
@@ -162,7 +162,7 @@ Also see `kmu-keymap-variable'."
   (let ((--parmap-- (keymap-parent keymap)))
     (when --parmap--
       (or (kmu-keymap-variable --parmap-- '--parmap--)
-	  (unless need-symbol --parmap--)))))
+          (unless need-symbol --parmap--)))))
 
 (defun kmu-mapvar-list (&optional exclude-prefix-commands)
   "Return a list of all keymap variables.
@@ -171,24 +171,24 @@ If optional EXCLUDE-PREFIX-COMMANDS is non-nil exclude all variables
 whose variable definition is also the function definition of a prefix
 command."
   (let ((prefix-commands
-	 (when exclude-prefix-commands
-	   (kmu-prefix-command-list))))
+         (when exclude-prefix-commands
+           (kmu-prefix-command-list))))
     (loop for symbol being the symbols
-	  when (kmu-keymap-variable-p symbol)
-	  when (not (memq symbol prefix-commands))
-	  collect symbol)))
+          when (kmu-keymap-variable-p symbol)
+          when (not (memq symbol prefix-commands))
+          collect symbol)))
 
 (defun kmu-prefix-command-list ()
   "Return a list of all prefix commands."
   (loop for symbol being the symbols
-	when (kmu-prefix-command-p symbol)
-	collect symbol))
+        when (kmu-prefix-command-p symbol)
+        collect symbol))
 
 (defun kmu-read-mapvar (prompt)
   (let ((mapvar (intern (completing-read prompt obarray
-					 'kmu-keymap-variable-p t nil nil))))
+                                         'kmu-keymap-variable-p t nil nil))))
     (if (eq mapvar '##)
-	(error "No mapvar selected")
+        (error "No mapvar selected")
       mapvar)))
 
 ;;; Keymap Mapping.
@@ -217,12 +217,12 @@ character range)."
    (lambda (key def)
      (let ((vec (vconcat prefix (list key))))
        (cond
-	((kmu-keymap-list-p def) (kmu-map-keymap function def pretty vec))
-	((eq def 'ESC-prefix)    (kmu-map-keymap function esc-map pretty vec))
-	((consp key)             (funcall function key def))
-	((eq pretty 'naked)      (funcall function (naked-key-description vec) def))
-	(pretty                  (funcall function (key-description vec) def))
-	(t                       (funcall function key def)))))
+        ((kmu-keymap-list-p def) (kmu-map-keymap function def pretty vec))
+        ((eq def 'ESC-prefix)    (kmu-map-keymap function esc-map pretty vec))
+        ((consp key)             (funcall function key def))
+        ((eq pretty 'naked)      (funcall function (naked-key-description vec) def))
+        (pretty                  (funcall function (key-description vec) def))
+        (t                       (funcall function key def)))))
    keymap))
 
 ;;; Various.
@@ -237,9 +237,12 @@ character range)."
   (let ((mapvar (kmu-keymap-variable (current-local-map))))
     (when (called-interactively-p 'any)
       (message (if mapvar
-		   (symbol-name mapvar)
-		 "Cannot determine current local mapvar")))
+                   (symbol-name mapvar)
+                 "Cannot determine current local mapvar")))
     mapvar))
 
 (provide 'keymap-utils)
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; keymap-utils.el ends here
