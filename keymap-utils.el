@@ -238,7 +238,7 @@ event.  If PRETTY is a function use that to convert the event."
     (when (called-interactively-p 'any)
       (message (if mapvar
                    (symbol-name mapvar)
-                 "Cannot determine current local mapvar")))
+                 "Cannot determine current local keymap variable")))
     mapvar))
 
 (provide 'keymap-utils)
