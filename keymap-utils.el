@@ -190,11 +190,12 @@ command."
 
 ;;; Keymap Mapping.
 
-(defun kmu-map-keymap (function keymap &optional pretty prefix)
+(defun kmu-map-keymap (function keymap &optional prefix)
   "Call FUNCTION once for each event sequence binding in KEYMAP.
 FUNCTION is called with two arguments: an event sequence (a
 vector), and the definition the last event in that sequence it is
-bound to.  Each event may also be a character range.
+bound to.  Each event may also be a character range.  If KEYMAP
+has a parent, this function returns it without processing it.
 
 When the definition an event is bound to is a prefix key but not
 a prefix command then instead of calling FUNCTION with the event
@@ -205,23 +206,14 @@ FUNCTION is called with the sequence that leads to the event
 binding, relative to KEYMAP, as first argument and the final
 binding as second argument.
 
-If KEYMAP has a parent, this function returns it without
-processing it.  Optional PREFIX is used internally to do this; do
-not set it yourself.
-
-If optional PRETTY is t call FUNCTION with a string suitable for
-`kbd' instead of a vector as first argument (provided it's not a
-character range).  This used `key-description' to convert the
-event.  If PRETTY is a function use that to convert the event."
+PREFIX is for internal use only."
   (map-keymap-internal
    (lambda (key def)
      (let ((vec (vconcat prefix (list key))))
        (cond
-        ((kmu-keymap-list-p def) (kmu-map-keymap function def pretty vec))
-        ((eq def 'ESC-prefix)    (kmu-map-keymap function esc-map pretty vec))
+        ((kmu-keymap-list-p def) (kmu-map-keymap function def vec))
+        ((eq def 'ESC-prefix)    (kmu-map-keymap function esc-map vec))
         ((consp key)             (funcall function key def))
-        ((functionp pretty)      (funcall function (funcall pretty vec) def))
-        (pretty                  (funcall function (key-description vec) def))
         (t                       (funcall function key def)))))
    keymap))
 
