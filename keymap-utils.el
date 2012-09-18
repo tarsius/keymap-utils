@@ -181,6 +181,9 @@ command."
         collect symbol))
 
 (defun kmu-read-mapvar (prompt)
+  "Read the name of a keymap variable and return it as a symbol.
+Prompt with PROMPT.  A keymap variable is one for which
+`kmu-keymap-variable-p' returns non-nil."
   (let ((mapvar (intern (completing-read prompt obarray
                                          'kmu-keymap-variable-p t nil nil))))
     (if (eq mapvar '##)
