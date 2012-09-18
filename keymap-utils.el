@@ -34,7 +34,6 @@
 ;;; Code:
 
 (require 'cl) ; loop
-(require 'edmacro)
 
 ;;; Predicates.
 
@@ -190,32 +189,35 @@ command."
 
 ;;; Keymap Mapping.
 
-(defun kmu-map-keymap (function keymap &optional prefix)
+(defun kmu-map-keymap (function keymap &optional internal)
   "Call FUNCTION once for each event sequence binding in KEYMAP.
 FUNCTION is called with two arguments: an event sequence (a
-vector), and the definition the last event in that sequence it is
-bound to.  Each event may also be a character range.  If KEYMAP
-has a parent, this function returns it without processing it.
+vector), and the definition the last event in that sequence it
+is bound to.
 
-When the definition an event is bound to is a prefix key but not
-a prefix command then instead of calling FUNCTION with the event
-and it's definition once, FUNCTION is called for each event
-binding in the sub-keymap.  This is done recursively until
-reaching an event binding that is not a prefix, in each branch.
-FUNCTION is called with the sequence that leads to the event
-binding, relative to KEYMAP, as first argument and the final
-binding as second argument.
+When an event's definition is another keymap (for which
+`kmu-keymap-list-p' returns non-nil) then recursively build up a
+event sequence and instead of calling FUNCTION with the initial
+event and it's definition once, call FUNCTION with each event
+sequence.
 
-PREFIX is for internal use only."
+If the last event in an event sequence is actually a character
+range then call FUNCTION with a dotted list instead of a vector
+as event sequence argument.
+
+\(fn FUNCTION KEYMAP)"
   (map-keymap-internal
    (lambda (key def)
-     (let ((vec (vconcat prefix (list key))))
-       (cond
-        ((kmu-keymap-list-p def) (kmu-map-keymap function def vec))
-        ((eq def 'ESC-prefix)    (kmu-map-keymap function esc-map vec))
-        ((consp key)             (funcall function key def))
-        (t                       (funcall function key def)))))
-   keymap))
+     (setq key (funcall (if (consp key) 'append 'vconcat)
+                        internal (list key)))
+     (cond ((kmu-keymap-list-p def)
+            (kmu-map-keymap function def key))
+           ((eq def 'ESC-prefix)
+            (kmu-map-keymap function esc-map key))
+           (t
+            (funcall function key def))))
+   keymap)
+  nil)
 
 ;;; Various.
 
