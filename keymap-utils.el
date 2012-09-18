@@ -219,6 +219,40 @@ as event sequence argument.
    keymap)
   nil)
 
+;;; `kmu-save-vanilla-keymaps-mode'.
+
+(defvar kmu-save-vanilla-keymaps-mode-lighter " vanilla")
+
+(define-minor-mode kmu-save-vanilla-keymaps-mode
+  "Minor mode for saving vanilla keymaps.
+
+When this mode is turned on a copy of the values of all loaded
+keymap variables are saved.  While the mode is on all keymap
+variables that haven't been saved yet are saved whenever a new
+library is loaded.  Parent keymaps are removed from the saved
+copies.
+
+This mode is useful when you want to compare the vanilla bindings
+with your modifications.  To make sure you really get the vanilla
+bindings turn on this mode as early as possible."
+  :keymap nil
+  :lighter kmu-vanilla-keymap-mode-lighter
+  (if kmu-save-vanilla-keymaps-mode
+      (progn
+        (kmu-save-vanilla-keymaps)
+        (add-hook 'after-load-functions 'kmu-save-vanilla-keymaps))
+    (remove-hook  'after-load-functions 'kmu-save-vanilla-keymaps)))
+
+(defvar kmu-vanilla-keymaps nil)
+
+(defun kmu-save-vanilla-keymaps (&optional filename)
+  (interactive)
+  (dolist (v (kmu-mapvar-list))
+    (let ((e (assoc v kmu-vanilla-keymaps)))
+      (unless e
+        (push (cons v (kmu--strip-keymap (symbol-value v)))
+              kmu-vanilla-keymaps)))))
+
 ;;; Various.
 
 (defun kmu-current-local-mapvar ()
