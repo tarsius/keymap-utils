@@ -4,7 +4,7 @@
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Created: 20080830
-;; Version: 0.4.2
+;; Version: 0.4.3
 ;; Homepage: https://github.com/tarsius/keymap-utils
 ;; Keywords: convenience, extensions
 
@@ -25,11 +25,8 @@
 
 ;;; Commentary:
 
-;; This library provides additional functions to work with keymaps.
-;;
-;; * keymap predicates (e.g. `kmu-keymap-variable-p')
-;; * key lookup (e.g. `kmu-lookup-parent-key')
-;; * and more
+;; This package provides some utilties useful to inspect and modifiy
+;; keymaps.
 
 ;;; Code:
 
