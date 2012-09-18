@@ -221,10 +221,6 @@ as event sequence argument.
 
 ;;; Various.
 
-(defun kmu-undefine-key (keymap key)
-  (define-key keymap key nil)
-  (delete (cons key nil) keymap))
-
 (defun kmu-current-local-mapvar ()
   "Echo the variable bound to the current local keymap."
   (interactive)
