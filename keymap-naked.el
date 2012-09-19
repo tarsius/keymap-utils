@@ -82,6 +82,121 @@ using `kmu-remove-key'."
           (kmu-remove-key keymap key)
         (kmu-define-key keymap key def)))))
 
+(defun kmu-map-naked-keymap (function keymap)
+  "Call FUNCTION once for each event sequence binding in KEYMAP.
+FUNCTION is called with two arguments: an event sequence string
+as returned by `naked-key-description', and the definition the
+last event in that sequence it is bound to.
+
+When the definition is another keymap then instead of calling
+FUNCTION with that event and it's definition once, FUNCTION is
+recursively called with each separate event sequence and it's
+non-keymap definition.
+
+If the last event in an event sequence is actually a character
+range then that is represented as \"START .. END\".  As usual
+this might be preceded by other events leading to the character
+range."
+  (kmu-map-keymap
+   `(lambda (key def)
+      (funcall
+       ,function
+       (if (consp key)
+           (let (prefix)
+             (while (consp (cdr key))
+               (push (car key) prefix)
+               (setq key (cdr key)))
+             (concat
+              (when prefix
+                (concat
+                 (naked-key-description (vconcat (nreverse prefix))) " "))
+              (naked-key-description (vector (car key))) " .. "
+              (naked-key-description (vector (cdr key)))))
+         (naked-key-description key))
+       def))
+   keymap))
+
+(defun kmu-naked-keymap-bindings (keymap &optional order)
+  "Return a list of all event sequence binding in KEYMAP.
+Each element has the form (DEF EVENT...) where DEF is the
+definition and the cdr is a list of (in most cases) all
+event sequences bound to DEF.
+
+Each EVENT is an event sequence as returned by
+`naked-key-description' and might end with an event range
+represented as \"START .. END\".  Possible ranges are e.g.
+\"1 .. 9\", \"M-0 .. M-9\", \"C-c C-0 .. C-9\" and actual
+character (integer) ranges. (This might be extended.)
+
+Remapped commands are kept separate from all other
+events (including other remappings) with the same binding.
+
+If optional ORDER is non-nil both the returned list and it's
+elements are sorted accordingly.  ORDER should be a list of
+naked event strings, or a list of such lists; events in the
+return value are brought into the same order."
+  (let (remaps same bindings)
+    (kmu-map-naked-keymap
+     (lambda (key def)
+       (if (string-match "\\<remap\\>" key)
+           (push (list def key) remaps)
+         (setq same (assq def bindings))
+         (if same
+             (setcdr same (cons key (cdr same)))
+           (push (list def key) bindings))))
+     keymap)
+    (flet ((merge-range
+            (lst mods &optional range)
+            (setq range
+                  (mapcan
+                   (lambda (key)
+                     (when (string-match (format "\\<%s[0-9]$" mods) key)
+                       (list key)))
+                   (cdr lst)))
+            (cond
+             ((= (length range) 10)
+              (dotimes (i 10)
+                (remove (format "%s%s" mods i) lst))
+              (nconc lst (list (format "%s0 .. %s9" mods mods))))
+             ((and (= (length range) 9)
+                   (not (member (format "%s0" mods) lst)))
+              (dotimes (i 9)
+                (remove (format "%s%s" mods (1+ i)) lst))
+              (nconc lst (list (format "%s1 .. %s9" mods mods)))))))
+      (dolist (b bindings)
+        (merge-range b "")
+        (merge-range b "C-")
+        (merge-range b "M-")
+        (merge-range b "C-M-")
+        (merge-range b "kp-")))
+    (setq bindings (nconc bindings remaps))
+    (if order
+        (mapcar
+         (lambda (b)
+           (cons (car b)
+                 (sort (cdr b)
+                       (apply-partially 'kmu-sort-keys-predicate order))))
+         bindings)
+      bindings)))
+
+(defun kmu-sort-keys-predicate (order a b)
+  "Return t if A appears earlier than B in ORDER, nil otherwise.
+ORDER has to be a list of events or a list of such lists.
+Instead of single events A and B can also be event sequences, in
+which case the heads are "
+  (let ((la (mapcar (lambda (k) (length (member k order))) (split-string a " ")))
+        (lb (mapcar (lambda (k) (length (member k order))) (split-string b " ")))
+        (ret nil))
+    (while (or la lb)
+      (cond ((not la)              (setq ret t   la nil lb nil))
+            ((not lb)              (setq ret nil la nil lb nil))
+            ((> (car la) (car lb)) (setq ret t   la nil lb nil))
+            ((< (car la) (car lb)) (setq ret nil la nil lb nil))
+            ((= (car la) (car lb)) (setq la (cdr la)
+                                         lb (cdr lb)))
+            (t (error "Impossible event sort error"))))
+    ret))
+
 (provide 'keymap-naked)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
