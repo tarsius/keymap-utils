@@ -208,8 +208,9 @@ as event sequence argument.
 \(fn FUNCTION KEYMAP)"
   (map-keymap-internal
    (lambda (key def)
-     (setq key (funcall (if (consp key) 'append 'vconcat)
-                        internal (list key)))
+     (setq key (if (consp key)
+                   (append internal key)
+                 (vconcat internal (list key))))
      (cond ((kmu-keymap-list-p def)
             (kmu-map-keymap function def key))
            ((eq def 'ESC-prefix)
