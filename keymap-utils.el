@@ -25,8 +25,8 @@
 
 ;;; Commentary:
 
-;; This package provides some utilties useful to inspect and modifiy
-;; keymaps.
+;; This package provides some utilities useful for inspecting and
+;; modifying keymaps.
 
 ;;; Code:
 
