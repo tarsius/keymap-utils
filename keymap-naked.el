@@ -26,6 +26,7 @@
 
 ;;; Code:
 
+(require 'cl)
 (require 'naked)
 
 (defun kmu-define-key (keymap key def)
@@ -109,12 +110,34 @@ range."
              (concat
               (when prefix
                 (concat
-                 (naked-key-description (vconcat (nreverse prefix))) " "))
-              (naked-key-description (vector (car key))) " .. "
-              (naked-key-description (vector (cdr key)))))
-         (naked-key-description key))
+                 (kmu-naked-key-description (vconcat (nreverse prefix))) " "))
+              (kmu-naked-key-description (vector (car key))) " .. "
+              (kmu-naked-key-description (vector (cdr key)))))
+         (kmu-naked-key-description key))
        def))
    keymap))
+
+;; FIXME
+(defun kmu-naked-key-description (event)
+  "Like `naked-key-description' but \"quote\" certain events.
+EVENT has to be an event sequence vector.
+
+This is a **kludge** for events that Emacs cannot encode when
+using utf-8 but are bound in the `global-map' as well as many
+global prefix maps, because they are meaningfull when using
+other encodings.  If you know a proper fix let me now.
+
+As a result the quoted events are not understood by
+`naked-read-kbd-macro'; on the other hand Emacs will stop
+complaining about not knowing how to encode buffers that
+contain them, every single time these buffers are saved.
+
+Not every event sequence that could cause problems is quoted
+just those that actually are known to do so."
+  (case (aref event 0)
+    (128     "128")
+    (4194303 "255")
+    (t       (naked-key-description event))))
 
 (defun kmu-naked-keymap-bindings (keymap &optional order)
   "Return a list of all event sequence binding in KEYMAP.
