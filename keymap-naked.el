@@ -102,7 +102,7 @@ using `kmu-remove-key'."
            (when prefix
              (concat
               (describe (vconcat (nreverse prefix))) " "))
-           (describe (vector (car keys))) " .. "
+           (describe (vector (car keys))) ".."
            (describe (vector (cdr keys)))))
       (describe keys))))
 
@@ -180,12 +180,12 @@ have to regular expressions or nil; the cdr a list of events
              ((= (length range) 10)
               (dotimes (i 10)
                 (delete (format "%s%s" mods i) lst))
-              (nconc lst (list (format "%s0 .. %s9" mods mods))))
+              (nconc lst (list (format "%s0..%s9" mods mods))))
              ((and (= (length range) 9)
                    (not (member (format "%s0" mods) lst)))
               (dotimes (i 9)
                 (delete (format "%s%s" mods (1+ i)) lst))
-              (nconc lst (list (format "%s1 .. %s9" mods mods)))))))
+              (nconc lst (list (format "%s1..%s9" mods mods)))))))
       (dolist (b bindings)
         (merge-range b "")
         (merge-range b "C-")
