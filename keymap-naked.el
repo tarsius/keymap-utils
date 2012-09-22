@@ -204,9 +204,8 @@ have to regular expressions or nil; the cdr a list of events
 
 (defun kmu-sort-keys-predicate (order a b)
   "Return t if A appears earlier than B in ORDER, nil otherwise.
-ORDER has to be a list of events or a list of such lists.
-Instead of single events A and B can also be event sequences, in
-which case the heads are "
+ORDER has to be a list of event descriptions (strings).  Instead
+of single events A and B can also be event sequences."
   (let ((la (mapcar (lambda (k) (length (member k order))) (split-string a " ")))
         (lb (mapcar (lambda (k) (length (member k order))) (split-string b " ")))
         (ret nil))
