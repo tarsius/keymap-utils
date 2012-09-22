@@ -126,8 +126,9 @@ range."
       (funcall ,function (kmu-naked-key-description key) def))
    keymap))
 
-(defun kmu-naked-keymap-bindings (keymap &optional order)
-  "Return a list of all event sequence binding in KEYMAP.
+(defun kmu-naked-keymap-bindings
+  (keymap &optional order separate exclude)
+  "Return a list of event sequence binding in KEYMAP.
 Each element has the form (DEF EVENT...) where DEF is the
 definition and the cdr is a list of (in most cases) all
 event sequences bound to DEF.
@@ -136,24 +137,36 @@ Each EVENT is an event sequence as returned by
 `naked-key-description' and might end with an event range
 represented as \"START .. END\".  Possible ranges are e.g.
 \"1 .. 9\", \"M-0 .. M-9\", \"C-c C-0 .. C-9\" and actual
-character (integer) ranges. (This might be extended.)
-
-Remapped commands are kept separate from all other
-events (including other remappings) with the same binding.
+character (integer) ranges.
 
 If optional ORDER is non-nil both the returned list and it's
 elements are sorted accordingly.  ORDER should be a list of
 naked event strings, or a list of such lists; events in the
-return value are brought into the same order."
-  (let (remaps same bindings)
-    (kmu-map-naked-keymap
+return value are brought into the same order.
+
+Optional EXCLUDE and SEPARATE specify events which should
+not be part of the returned value respectively as separate
+elements.  If non-nil the car of both EXCLUDE and SEPARATE
+have to regular expressions or nil; the cdr a list of events
+\(integers and symbols)."
+  (let (bindings separated)
+    (kmu-map-keymap
      (lambda (key def)
-       (if (string-match "\\<remap\\>" key)
-           (push (list def key) remaps)
-         (setq same (assq def bindings))
-         (if same
-             (setcdr same (cons key (cdr same)))
-           (push (list def key) bindings))))
+       (let ((desc (kmu-naked-key-description key)))
+         (cond ((consp key)
+                (push (list def desc) bindings))
+               ((or (memq (aref key 0) (cdr exclude))
+                    (and (car exclude)
+                         (string-match (car exclude) desc))))
+               ((or (memq (aref key 0) (cdr separate))
+                    (and (car separate)
+                         (string-match (car separate) desc)))
+                (push (list def desc) separated))
+               (t
+                (let ((same (assq def bindings)))
+                  (if same
+                      (setcdr same (cons desc (cdr same)))
+                    (push (list def desc) bindings)))))))
      keymap)
     (flet ((merge-range
             (lst mods &optional range)
@@ -179,7 +192,7 @@ return value are brought into the same order."
         (merge-range b "M-")
         (merge-range b "C-M-")
         (merge-range b "kp-")))
-    (setq bindings (nconc bindings remaps))
+    (setq bindings (nconc bindings separated))
     (if order
         (mapcar
          (lambda (b)
