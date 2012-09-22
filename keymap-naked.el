@@ -153,20 +153,21 @@ have to regular expressions or nil; the cdr a list of events
     (kmu-map-keymap
      (lambda (key def)
        (let ((desc (kmu-naked-key-description key)))
-         (cond ((consp key)
-                (push (list def desc) bindings))
-               ((or (memq (aref key 0) (cdr exclude))
-                    (and (car exclude)
-                         (string-match (car exclude) desc))))
-               ((or (memq (aref key 0) (cdr separate))
-                    (and (car separate)
-                         (string-match (car separate) desc)))
-                (push (list def desc) separated))
-               (t
-                (let ((same (assq def bindings)))
-                  (if same
-                      (setcdr same (cons desc (cdr same)))
-                    (push (list def desc) bindings)))))))
+         (cond
+          ((or (and (arrayp key)
+                    (memq (aref key 0) (cdr exclude)))
+               (and (car exclude)
+                    (string-match (car exclude) desc))))
+          ((or (and (arrayp key)
+                    (memq (aref key 0) (cdr separate)))
+               (and (car separate)
+                    (string-match (car separate) desc)))
+           (push (list def desc) separated))
+          (t
+           (let ((same (assq def bindings)))
+             (if same
+                 (setcdr same (cons desc (cdr same)))
+               (push (list def desc) bindings)))))))
      keymap)
     (flet ((merge-range
             (lst mods &optional range)
