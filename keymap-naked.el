@@ -83,6 +83,29 @@ using `kmu-remove-key'."
           (kmu-remove-key keymap key)
         (kmu-define-key keymap key def)))))
 
+(defun kmu-naked-key-description (keys)
+  "Like `naked-key-description' but also handle some special cases."
+  (flet ((describe
+          (keys)
+          ;; "Quote" certain events that cannot be encoded.
+          (case (aref keys 0)
+            (128     "128")
+            (4194303 "255")
+            (t       (naked-key-description keys)))))
+    (if (consp keys)
+        ;; A string representation for character ranges.
+        (let (prefix)
+          (while (consp (cdr keys))
+            (push (car keys) prefix)
+            (setq keys (cdr keys)))
+          (concat
+           (when prefix
+             (concat
+              (describe (vconcat (nreverse prefix))) " "))
+           (describe (vector (car keys))) " .. "
+           (describe (vector (cdr keys)))))
+      (describe keys))))
+
 (defun kmu-map-naked-keymap (function keymap)
   "Call FUNCTION once for each event sequence binding in KEYMAP.
 FUNCTION is called with two arguments: an event sequence string
@@ -100,44 +123,8 @@ this might be preceded by other events leading to the character
 range."
   (kmu-map-keymap
    `(lambda (key def)
-      (funcall
-       ,function
-       (if (consp key)
-           (let (prefix)
-             (while (consp (cdr key))
-               (push (car key) prefix)
-               (setq key (cdr key)))
-             (concat
-              (when prefix
-                (concat
-                 (kmu-naked-key-description (vconcat (nreverse prefix))) " "))
-              (kmu-naked-key-description (vector (car key))) " .. "
-              (kmu-naked-key-description (vector (cdr key)))))
-         (kmu-naked-key-description key))
-       def))
+      (funcall ,function (kmu-naked-key-description key) def))
    keymap))
-
-;; FIXME
-(defun kmu-naked-key-description (event)
-  "Like `naked-key-description' but \"quote\" certain events.
-EVENT has to be an event sequence vector.
-
-This is a **kludge** for events that Emacs cannot encode when
-using utf-8 but are bound in the `global-map' as well as many
-global prefix maps, because they are meaningfull when using
-other encodings.  If you know a proper fix let me now.
-
-As a result the quoted events are not understood by
-`naked-read-kbd-macro'; on the other hand Emacs will stop
-complaining about not knowing how to encode buffers that
-contain them, every single time these buffers are saved.
-
-Not every event sequence that could cause problems is quoted
-just those that actually are known to do so."
-  (case (aref event 0)
-    (128     "128")
-    (4194303 "255")
-    (t       (naked-key-description event))))
 
 (defun kmu-naked-keymap-bindings (keymap &optional order)
   "Return a list of all event sequence binding in KEYMAP.
