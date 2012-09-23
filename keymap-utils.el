@@ -145,13 +145,18 @@ symbol from being returned which is dynamically bound to KEYMAP."
 (defun kmu-keymap-parent (keymap &optional need-symbol &rest exclude)
   "Return the parent keymap of KEYMAP.
 
-If a variable exists whose value is KEYMAP's parent keymap return that.
-Otherwise if KEYMAP does not have a parent keymap return nil.  Otherwise
-if KEYMAP has a parent keymap but no variable is bound to it return the
-parent keymap, unless optional NEED-SYMBOL is non-nil in which case nil
-is returned.
+If a variable exists whose value is KEYMAP's parent keymap return
+that.  Otherwise if KEYMAP does not have a parent keymap return
+nil.  Otherwise if KEYMAP has a parent keymap but no variable is
+bound to it return the parent keymap, unless optional NEED-SYMBOL
+is non-nil in which case nil is returned.
 
-Also see `kmu-keymap-variable'."
+Comparison is done with `eq'.  If there are multiple variables
+whose value is the keymap it is undefined which is returned.
+
+Ignore symbols listed in optional EXCLUDE.  Use this to prevent
+a symbol from being returned which is dynamically bound to the
+parent keymap."
   (let ((--parmap-- (keymap-parent keymap)))
     (when --parmap--
       (or (kmu-keymap-variable --parmap-- '--parmap--)
@@ -160,9 +165,9 @@ Also see `kmu-keymap-variable'."
 (defun kmu-mapvar-list (&optional exclude-prefix-commands)
   "Return a list of all keymap variables.
 
-If optional EXCLUDE-PREFIX-COMMANDS is non-nil exclude all variables
-whose variable definition is also the function definition of a prefix
-command."
+If optional EXCLUDE-PREFIX-COMMANDS is non-nil exclude all
+variables whose variable definition is also the function
+definition of a prefix command."
   (let ((prefix-commands
          (when exclude-prefix-commands
            (kmu-prefix-command-list))))
