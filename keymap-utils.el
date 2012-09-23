@@ -216,12 +216,9 @@ as event sequence argument.
      (setq key (if (consp key)
                    (append internal key)
                  (vconcat internal (list key))))
-     (cond ((kmu-keymap-list-p def)
-            (kmu-map-keymap function def key))
-           ((eq def 'ESC-prefix)
-            (kmu-map-keymap function esc-map key))
-           (t
-            (funcall function key def))))
+     (if (kmu-keymap-list-p def)
+         (kmu-map-keymap function def key)
+       (funcall function key def)))
    keymap)
   nil)
 
@@ -245,6 +242,7 @@ bindings turn on this mode as early as possible."
   :lighter kmu-vanilla-keymap-mode-lighter
   (if kmu-save-vanilla-keymaps-mode
       (progn
+        (kmu-merge-esc-into-global-map)
         (kmu-save-vanilla-keymaps)
         (add-hook 'after-load-functions 'kmu-save-vanilla-keymaps))
     (remove-hook  'after-load-functions 'kmu-save-vanilla-keymaps)))
@@ -260,6 +258,10 @@ bindings turn on this mode as early as possible."
               kmu-vanilla-keymaps)))))
 
 ;;; Various.
+
+(defun kmu-merge-esc-into-global-map ()
+  (when (eq (lookup-key (current-global-map) [27]) 'ESC-prefix)
+    (global-set-key [27] esc-map)))
 
 (defun kmu-current-local-mapvar ()
   "Echo the variable bound to the current local keymap."
