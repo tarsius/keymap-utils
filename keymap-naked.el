@@ -53,9 +53,11 @@ actually removing the event from the keymap)."
     (setq key (naked-read-kbd-macro key t)))
   (define-key keymap key nil)
   (if (> (length key) 1)
+      ;; FIXME this assumes that e.g. (naked-read-kbd-macro "M-a")
+      ;; return [27 97] but actually it returns [134217825].
       (delete (last (setq key (append key nil)))
               (lookup-key keymap (apply 'vector (butlast key))))
-    (delete (cons key nil) keymap)))
+    (delete (cons (aref key 0) nil) keymap)))
 
 (defmacro kmu-define-keys (mapvar feature &rest plist)
   "Define all keys in PLIST in the keymap stored in MAPVAR.
