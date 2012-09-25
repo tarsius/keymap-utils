@@ -238,6 +238,7 @@ copies.
 This mode is useful when you want to compare the vanilla bindings
 with your modifications.  To make sure you really get the vanilla
 bindings turn on this mode as early as possible."
+  :global t
   :keymap nil
   :lighter kmu-vanilla-keymap-mode-lighter
   (if kmu-save-vanilla-keymaps-mode
