@@ -63,12 +63,17 @@ actually removing the event from the keymap)."
   "Define all keys in PLIST in the keymap stored in MAPVAR.
 If a key in PLIST is a string it has to be in the `naked' format
 without angle brackets.  `:remove' as a key definition means that
-the existing definition (if any) should be remove from the keymap
+the existing definition (if any) should be removed from the keymap
 using `kmu-remove-key'."
   (declare (indent 2))
   (if feature
       `(eval-after-load ',feature
-         (kmu-define-keys-1 ',mapvar ',plist))
+         '(progn
+            (when kmu-save-vanilla-keymaps-mode
+              ;; `kmu-save-vanilla-keymaps' comes later in
+              ;; `after-load-functions'.
+              (kmu-save-vanilla-keymap ',mapvar))
+            (kmu-define-keys-1 ',mapvar ',plist)))
     `(kmu-define-keys-1 ',mapvar ',plist)))
 
 (defun kmu-define-keys-1 (keymap plist)
