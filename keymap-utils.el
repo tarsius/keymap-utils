@@ -114,12 +114,12 @@ the parent keymap of any keymap a key in KEYMAP is bound to."
                (let ((new-keymap (make-sparse-keymap)))
                  (set-keymap-parent new-keymap (keymap-parent keymap))
                  (set-keymap-parent keymap nil)
-                 (loop for key being the key-code of keymap
-                       using (key-binding binding) do
-                       (and (keymapp binding)
-                            (not (kmu-prefix-command-p binding))
-                            (define-key new-keymap (vector key)
-                              (collect-parmaps binding))))
+                 (cl-loop for key being the key-code of keymap
+                          using (key-binding binding) do
+                          (and (keymapp binding)
+                               (not (kmu-prefix-command-p binding))
+                               (define-key new-keymap (vector key)
+                                 (collect-parmaps binding))))
                  new-keymap)))
     (collect-parmaps (copy-keymap keymap))))
 
@@ -136,12 +136,12 @@ symbol from being returned which is dynamically bound to KEYMAP."
   (when (keymapp keymap)
     (setq exclude (append '(keymap --match-- --symbol--) exclude))
     (let (--match--)
-      (do-symbols (--symbol--)
+      (cl-do-symbols (--symbol--)
         (and (not (memq --symbol-- exclude))
              (boundp --symbol--)
              (eq (symbol-value --symbol--) keymap)
              (setq --match-- --symbol--)
-             (return nil)))
+             (cl-return nil)))
       --match--)))
 
 (defun kmu-keymap-parent (keymap &optional need-symbol &rest exclude)
@@ -173,16 +173,16 @@ definition of a prefix command."
   (let ((prefix-commands
          (when exclude-prefix-commands
            (kmu-prefix-command-list))))
-    (loop for symbol being the symbols
-          when (kmu-keymap-variable-p symbol)
-          when (not (memq symbol prefix-commands))
-          collect symbol)))
+    (cl-loop for symbol being the symbols
+             when (kmu-keymap-variable-p symbol)
+             when (not (memq symbol prefix-commands))
+             collect symbol)))
 
 (defun kmu-prefix-command-list ()
   "Return a list of all prefix commands."
-  (loop for symbol being the symbols
-        when (kmu-prefix-command-p symbol)
-        collect symbol))
+  (cl-loop for symbol being the symbols
+           when (kmu-prefix-command-p symbol)
+           collect symbol))
 
 (defun kmu-read-mapvar (prompt)
   "Read the name of a keymap variable and return it as a symbol.
