@@ -26,7 +26,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib) ; cl-flet, cl-mapcan
 (require 'naked)
 
 (defun kmu-define-key (keymap key def)
@@ -92,13 +92,13 @@ using `kmu-remove-key'."
 
 (defun kmu-naked-key-description (keys)
   "Like `naked-key-description' but also handle some special cases."
-  (flet ((describe
-          (keys)
-          ;; "Quote" certain events that cannot be encoded.
-          (case (aref keys 0)
-            (128     "128")
-            (4194303 "255")
-            (t       (naked-key-description keys)))))
+  (cl-flet ((describe
+             (keys)
+             ;; "Quote" certain events that cannot be encoded.
+             (case (aref keys 0)
+               (128     "128")
+               (4194303 "255")
+               (t       (naked-key-description keys)))))
     (if (consp keys)
         ;; A string representation for character ranges.
         (let (prefix)
@@ -176,14 +176,14 @@ have to regular expressions or nil; the cdr a list of events
                  (setcdr same (cons desc (cdr same)))
                (push (list def desc) bindings)))))))
      keymap)
-    (flet ((merge-range
-            (lst mods &optional range)
-            (setq range
-                  (mapcan
-                   (lambda (key)
-                     (when (string-match (format "\\<%s[0-9]$" mods) key)
-                       (list key)))
-                   (cdr lst)))
+    (cl-flet ((merge-range
+               (lst mods &optional range)
+               (setq range
+                     (cl-mapcan
+                      (lambda (key)
+                        (when (string-match (format "\\<%s[0-9]$" mods) key)
+                          (list key)))
+                      (cdr lst)))
             (cond
              ((= (length range) 10)
               (dotimes (i 10)
