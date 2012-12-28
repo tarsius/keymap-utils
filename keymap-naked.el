@@ -154,8 +154,8 @@ return value are brought into the same order.
 Optional EXCLUDE and SEPARATE specify events which should
 not be part of the returned value respectively as separate
 elements.  If non-nil the car of both EXCLUDE and SEPARATE
-have to regular expressions or nil; the cdr a list of events
-\(integers and symbols)."
+have to be regular expressions or nil; the cdr a list of
+events (integers and symbols)."
   (let (bindings separated)
     (kmu-map-keymap
      (lambda (key def)
