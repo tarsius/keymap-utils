@@ -202,12 +202,15 @@ events (integers and symbols)."
         (merge-range b "kp-")))
     (setq bindings (nconc bindings separated))
     (if order
-        (mapcar
-         (lambda (b)
-           (cons (car b)
-                 (sort (cdr b)
-                       (apply-partially 'kmu-sort-keys-predicate order))))
-         bindings)
+        (cl-sort
+         (apply-partially 'kmu-sort-keys-predicate order)
+         (mapcar
+          (lambda (b)
+            (cons (car b)
+                  (sort (cdr b)
+                        (apply-partially 'kmu-sort-keys-predicate order))))
+          bindings)
+         :key 'cadr)
       bindings)))
 
 (defun kmu-sort-keys-predicate (order a b)
