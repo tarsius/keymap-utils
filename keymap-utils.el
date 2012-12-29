@@ -244,7 +244,6 @@ bindings turn on this mode as early as possible."
   :lighter kmu-vanilla-keymap-mode-lighter
   (if kmu-save-vanilla-keymaps-mode
       (progn
-        (kmu-merge-esc-into-global-map)
         (kmu-save-vanilla-keymaps)
         (add-hook 'after-load-functions 'kmu-save-vanilla-keymaps))
     (remove-hook  'after-load-functions 'kmu-save-vanilla-keymaps)))
