@@ -262,6 +262,17 @@ bindings turn on this mode as early as possible."
       (push (cons mapvar (copy-keymap (symbol-value mapvar)))
             kmu-vanilla-keymaps))))
 
+(defun kmu-restore-vanilla-keymap (mapvar)
+  (let ((vanilla (assoc mapvar kmu-vanilla-keymaps)))
+    (if vanilla
+        (setcdr (symbol-value mapvar)
+                (cdr (copy-keymap vanilla)))
+      (error "Vanilla state of %s hasn't been saved" mapvar))))
+
+(defun kmu-vanilla-mapvar-p (mapvar)
+  (equal (symbol-value mapvar)
+         (assoc mapvar kmu-vanilla-keymaps)))
+
 ;;; Various.
 
 (defun kmu-merge-esc-into-global-map ()
