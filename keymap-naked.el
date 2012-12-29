@@ -98,7 +98,16 @@ using `kmu-remove-key'."
              (case (aref keys 0)
                (128     "128")
                (4194303 "255")
-               (t       (naked-key-description keys)))))
+               (t
+                ;; Merge ESC into following event.
+                (let ((s (naked-key-description keys)))
+                  (while (and (string-match
+                               "\\(ESC \\(C-\\)?\\([^ ]+\\)\\)" s)
+                              (save-match-data
+                                (not (string-match "\\(ESC\\|M-\\)"
+                                                   (match-string 3 s)))))
+                    (setq s (replace-match "\\2M-\\3" t nil s 1)))
+                  s)))))
     (if (consp keys)
         ;; A string representation for character ranges.
         (let (prefix)
