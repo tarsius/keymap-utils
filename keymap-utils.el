@@ -234,8 +234,7 @@ as event sequence argument.
 When this mode is turned on a copy of the values of all loaded
 keymap variables are saved.  While the mode is on all keymap
 variables that haven't been saved yet are saved whenever a new
-library is loaded.  Parent keymaps are removed from the saved
-copies.
+library is loaded.
 
 This mode is useful when you want to compare the vanilla bindings
 with your modifications.  To make sure you really get the vanilla
@@ -260,7 +259,7 @@ bindings turn on this mode as early as possible."
   (interactive (list (kmu-read-mapvar "Save keymap: ")))
   (let ((e (assoc mapvar kmu-vanilla-keymaps)))
     (unless e
-      (push (cons mapvar (kmu--strip-keymap (symbol-value mapvar)))
+      (push (cons mapvar (copy-keymap (symbol-value mapvar)))
             kmu-vanilla-keymaps))))
 
 ;;; Various.
