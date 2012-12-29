@@ -26,7 +26,7 @@
 
 ;;; Code:
 
-(require 'cl-lib) ; cl-flet, cl-mapcan
+(require 'cl-lib)
 (require 'naked)
 
 (defun kmu-define-key (keymap key def)
@@ -83,7 +83,7 @@ using `kmu-remove-key'."
     (error "Not a keymap"))
   (while plist
     (unless (cdr plist)
-        (error "Odd number of elements in PLIST"))
+      (error "Odd number of elements in PLIST"))
     (let ((key (pop plist))
           (def (pop plist)))
       (if (eq def :remove)
