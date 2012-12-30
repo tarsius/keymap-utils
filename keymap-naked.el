@@ -29,6 +29,10 @@
 (require 'cl-lib)
 (require 'naked)
 
+(declare-function save-sexp-save-generic "save-sexp")
+(declare-function save-sexp-delete "save-sexp")
+(declare-function save-sexp-prepare "save-sexp")
+
 (defun kmu-define-key (keymap key def)
   "In KEYMAP, define key sequence KEY as DEF.
 Like `define-key' but if KEY is a string it has to be in the
@@ -90,37 +94,58 @@ using `kmu-remove-key'."
           (kmu-remove-key keymap key)
         (kmu-define-key keymap key def)))))
 
+(defun save-kmu-define-keys (file mapvar feature bindings)
+  (require 'sexp)
+  (save-sexp-save-generic
+   file
+   (lambda (var)
+     (if (not bindings)
+	 (save-sexp-delete
+	  (lambda (sexp)
+	    (and (eq (nth 0 sexp) 'kmu-define-keys)
+		 (eq (nth 1 sexp) var))))
+       (save-sexp-prepare 'kmu-define-keys nil var)
+       (princ " ")
+       (prin1 feature)
+       (dolist (b bindings)
+	 (princ "\n  ")
+	 (prin1 (car b))
+	 (princ " ")
+	 (prin1 (cadr b)))
+       (forward-char)
+       (backward-sexp)
+       (prog1 (read (current-buffer))
+	 (forward-sexp))))
+   mapvar))
+
 (defun kmu-naked-key-description (keys)
   "Like `naked-key-description' but also handle some special cases."
-  (cl-flet ((describe
-             (keys)
-             ;; "Quote" certain events that cannot be encoded.
-             (case (aref keys 0)
-               (128     "128")
-               (4194303 "255")
-               (t
-                ;; Merge ESC into following event.
-                (let ((s (naked-key-description keys)))
-                  (while (and (string-match
-                               "\\(ESC \\(C-\\)?\\([^ ]+\\)\\)" s)
-                              (save-match-data
-                                (not (string-match "\\(ESC\\|M-\\)"
-                                                   (match-string 3 s)))))
-                    (setq s (replace-match "\\2M-\\3" t nil s 1)))
-                  s)))))
-    (if (consp keys)
-        ;; A string representation for character ranges.
-        (let (prefix)
-          (while (consp (cdr keys))
-            (push (car keys) prefix)
-            (setq keys (cdr keys)))
-          (concat
-           (when prefix
-             (concat
-              (describe (vconcat (nreverse prefix))) " "))
-           (describe (vector (car keys))) ".."
-           (describe (vector (cdr keys)))))
-      (describe keys))))
+  (if (consp keys)
+      ;; A string representation for character ranges.
+      (let (prefix)
+        (while (consp (cdr keys))
+          (push (car keys) prefix)
+          (setq keys (cdr keys)))
+        (concat
+         (when prefix
+           (concat
+            (kmu-naked-key-description (vconcat (nreverse prefix))) " "))
+         (kmu-naked-key-description (vector (car keys))) ".."
+         (kmu-naked-key-description (vector (cdr keys)))))
+    ;; "Quote" certain events that cannot be encoded.
+    (case (aref keys 0)
+      (128     "128")
+      (4194303 "255")
+      (t
+       ;; Merge ESC into following event.
+       (let ((s (naked-key-description keys)))
+         (while (and (string-match
+                      "\\(ESC \\(C-\\)?\\([^ ]+\\)\\)" s)
+                     (save-match-data
+                       (not (string-match "\\(ESC\\|M-\\)"
+                                          (match-string 3 s)))))
+           (setq s (replace-match "\\2M-\\3" t nil s 1)))
+         s)))))
 
 (defun kmu-map-naked-keymap (function keymap)
   "Call FUNCTION once for each event sequence binding in KEYMAP.
