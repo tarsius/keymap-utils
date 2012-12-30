@@ -253,6 +253,18 @@ bound to .
 The last event in an event sequence may be a character range."
   (mapc (lambda (e) (apply function e)) (kmu-keymap-events keymap)))
 
+(defun kmu-keymap-bindings (keymap)
+  (let (bs)
+    (kmu-map-keymap (lambda (key def)
+                      (let ((a (assq def bs)))
+                        (if a (setcdr a (cons key (cdr a)))
+                          (push (list def key) bs))))
+                    keymap)
+    bs))
+
+(defun kmu-map-keymap-bindings (function keymap)
+  (mapc (lambda (e) (apply function e)) (kmu-keymap-bindings keymap)))
+
 ;;; `kmu-save-vanilla-keymaps-mode'.
 
 (defvar kmu-save-vanilla-keymaps-mode-lighter " vanilla")
