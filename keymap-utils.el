@@ -144,6 +144,21 @@ symbol from being returned which is dynamically bound to KEYMAP."
              (cl-return nil)))
       --match--)))
 
+(defun kmu-keymap-prefix-command (keymap)
+  "Return a symbol whose function definition is KEYMAP.
+
+Comparison is done with `eq'.  If there are multiple symbols
+whose function definition is KEYMAP it is undefined which is
+returned."
+  (when (keymapp keymap)
+    (let (--match--)
+      (cl-do-symbols (--symbol--)
+        (and (fboundp --symbol--)
+             (eq (symbol-function --symbol--) keymap)
+             (setq --match-- --symbol--)
+             (cl-return nil)))
+      --match--)))
+
 (defun kmu-keymap-parent (keymap &optional need-symbol &rest exclude)
   "Return the parent keymap of KEYMAP.
 
