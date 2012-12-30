@@ -196,6 +196,49 @@ Prompt with PROMPT.  A keymap variable is one for which
 
 ;;; Keymap Mapping.
 
+(defvar kmu-char-range-minimum 9)
+
+(defun kmu-keymap-events (keymap &optional internal)
+  (let ((min (1- kmu-char-range-minimum))
+        v vv)
+    (map-keymap-internal
+     (lambda (key def)
+       (if (kmu-keymap-list-p def)
+           (setq v (append (kmu-keymap-events def key) v))
+         (push (list key def) v)))
+     keymap)
+    (while v
+      (let* ((elt (pop v))
+             (def (cadr elt))
+             beg end mem)
+        (if (consp (car elt))
+            (setq beg (caar elt)
+                  end (cdar elt))
+          (let (mem)
+            (setq beg (car elt)
+                  end (car elt))
+            (while (and (setq mem (car (cl-member (1- beg) v :key 'car)))
+                        (equal (cadr mem) def))
+              (decf beg)
+              (setq v (remove mem v)))
+            (while (and (setq mem (car (cl-member (1+ end) v :key 'car)))
+                        (equal (cadr mem) def))
+              (incf end)
+              (setq v (remove mem v)))))
+        (cond ((eq beg end)
+               (push elt vv))
+              ((< (- end beg) min)
+               (cl-loop for key from beg to end
+                        do (push (list key def) vv)))
+              (t
+               (push (list (cons beg end) def) vv)))))
+    (mapcar (if internal
+                (lambda (elt)
+                  (list (vconcat internal (list (car elt))) (cadr elt)))
+              (lambda (elt)
+                (list (vector (car elt)) (cadr elt))))
+            vv)))
+
 (defun kmu-map-keymap (function keymap &optional internal)
   "Call FUNCTION once for each event sequence binding in KEYMAP.
 FUNCTION is called with two arguments: an event sequence (a
