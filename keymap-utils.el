@@ -239,33 +239,19 @@ Prompt with PROMPT.  A keymap variable is one for which
                 (list (vector (car elt)) (cadr elt))))
             vv)))
 
-(defun kmu-map-keymap (function keymap &optional internal)
+(defun kmu-map-keymap (function keymap)
   "Call FUNCTION once for each event sequence binding in KEYMAP.
-FUNCTION is called with two arguments: an event sequence (a
-vector), and the definition the last event in that sequence it
-is bound to.
+FUNCTION is called with two arguments: the event sequence that is
+bound (a vector), and the definition it is bound to.
 
-When an event's definition is another keymap (for which
-`kmu-keymap-list-p' returns non-nil) then recursively build up a
-event sequence and instead of calling FUNCTION with the initial
-event and it's definition once, call FUNCTION with each event
-sequence.
+When the definition of an event is another keymap list then
+recursively build up a event sequence and instead of calling
+FUNCTION with the initial event and it's definition once, call
+FUNCTION once for each event sequence and the definition it is
+bound to .
 
-If the last event in an event sequence is actually a character
-range then call FUNCTION with a dotted list instead of a vector
-as event sequence argument.
-
-\(fn FUNCTION KEYMAP)"
-  (map-keymap-internal
-   (lambda (key def)
-     (setq key (if (consp key)
-                   (append internal key)
-                 (vconcat internal (list key))))
-     (if (kmu-keymap-list-p def)
-         (kmu-map-keymap function def key)
-       (funcall function key def)))
-   keymap)
-  nil)
+The last event in an event sequence may be a character range."
+  (mapc (lambda (e) (apply function e)) (kmu-keymap-events keymap)))
 
 ;;; `kmu-save-vanilla-keymaps-mode'.
 
