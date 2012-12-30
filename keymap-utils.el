@@ -309,6 +309,9 @@ bindings turn on this mode as early as possible."
                 (cdr (copy-keymap vanilla)))
       (error "Vanilla state of %s hasn't been saved" mapvar))))
 
+(defun kmu-vanilla-keymap (mapvar)
+  (cdr (assq mapvar kmu-vanilla-keymaps)))
+
 (defun kmu-vanilla-mapvar-p (mapvar)
   (equal (symbol-value mapvar)
          (assoc mapvar kmu-vanilla-keymaps)))
