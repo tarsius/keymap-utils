@@ -30,7 +30,7 @@
 
 ;;; Code:
 
-(require 'cl-lib) ; cl-loop, cl-labels
+(require 'cl-lib)
 
 ;;; Predicates.
 
