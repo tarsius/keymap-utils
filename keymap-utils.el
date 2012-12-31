@@ -32,7 +32,7 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'naked)
+(require 'naked nil t)
 
 (declare-function save-sexp-save-generic "save-sexp")
 (declare-function save-sexp-delete "save-sexp")
@@ -217,7 +217,22 @@ Prompt with PROMPT.  A keymap variable is one for which
 
 ;;; Key Descriptions.
 
-(defun kmu-key-description (keys &optional prefix)
+(defun kmu-key-description (keys &optional prefix naked)
+  "Return a pretty description of key-sequence KEYS.
+Optional argument PREFIX is the sequence of keys leading up
+to KEYS.  For example, [24 108] is converted into the string
+\"C-x l\".
+
+Unlike with `key-description' the last element of keys can be a
+character range.  For example, [(97 . 101)] is converted to the
+string \"a..e\".  Emacs doesn't deal with character ranges in
+event sequences and descriptions; unless special care is taken
+this is only suitable for human consumption.
+
+If optional NAKED is non-nil and library `naked' (which see) is
+loaded return a naked key description without angle brackets.
+To convert such a string into an event vector again use `naked'
+instead of `kbd'."
   (let ((last (aref keys (1- (length keys)))))
     (if (and (consp last)
              (not (consp (cdr last))))
@@ -230,7 +245,9 @@ Prompt with PROMPT.  A keymap variable is one for which
                   (kmu-key-description (vector (car keys))) ".."
                   (kmu-key-description (vector (cdr keys)))))
       ;; Merge ESC into following event.
-      (let ((s (naked-key-description keys)))
+      (let ((s (if (and naked (fboundp 'naked-edmacro-parse-keys))
+                   (naked-key-description keys)
+                 (key-description keys))))
         (while (and (string-match "\\(ESC \\(C-\\)?\\([^ ]+\\)\\)" s)
                     (save-match-data
                       (not (string-match "\\(ESC\\|M-\\)"
@@ -242,40 +259,75 @@ Prompt with PROMPT.  A keymap variable is one for which
 
 (defun kmu-define-key (keymap key def)
   "In KEYMAP, define key sequence KEY as DEF.
-Like `define-key' but if KEY is a string it has to be in the
-`naked' format without angle brackets."
+This is like `define-key' but if KEY is a string then it has to
+be a key description as returned by `key-description' and not a
+string like \"?\C-a\".  If library `naked' (which see) is loaded
+it can also be a naked key description without any angle brackets."
   (define-key keymap
     (if (stringp key)
-        (naked-read-kbd-macro key)
+        (if (fboundp 'naked-edmacro-parse-keys)
+            (naked-edmacro-parse-keys key t)
+          (edmacro-parse-keys key t))
       key)
     def))
 
 (defun kmu-remove-key (keymap key)
   "In KEYMAP, remove key sequence KEY.
-If KEY is a string it has to be in the `naked' format without
-angle brackets.
+If KEY is a string then it has to be a key description as
+returned by `key-description'.
 
-This removes the key sequence KEY from KEYMAP.  This differs from
-using `undefined' or nil as definition.  `undefined' is a command
-like any other and calling `define-key' with nil as definition
-merely \"undefines\" the key by setting it to nil (but without
-actually removing the event from the keymap)."
+There are several ways in which a key can be \"undefined\":
+
+   (keymap (65 . undefined) ; A
+           (66))            ; B
+
+As far as key lookup is concerned A isn't undefined at all, it is
+bound to the command `undefined' (which doesn't do anything but
+make some noise).  This can be used to override lower-precedence
+keymaps.
+
+B's binding is nil which doesn't constitute a definition but does
+take precedence over a default binding or a binding in the parent
+keymap.  On the other hand, a binding of nil does _not_ override
+lower-precedence keymaps; thus, if the local map gives a binding
+of nil, Emacs uses the binding from the global map.
+
+All other events are truly undefined in KEYMAP.  This command
+makes an event which was previously defined undefined again, by
+removing from KEYMAP without leaving any traces."
   (when (stringp key)
-    (setq key (naked-read-kbd-macro key t)))
+    (setq key (if (fboundp 'naked-edmacro-parse-keys)
+                  (naked-edmacro-parse-keys key t)
+                (edmacro-parse-keys key t))))
   (define-key keymap key nil)
   (if (> (length key) 1)
-      ;; FIXME this assumes that e.g. (naked-read-kbd-macro "M-a")
-      ;; return [27 97] but actually it returns [134217825].
+      ;; FIXME this assumes that ({naked-,}edmacro-parse-keys "M-a" t)
+      ;; returns [27 97] but actually it returns [134217825].
       (delete (last (setq key (append key nil)))
               (lookup-key keymap (apply 'vector (butlast key))))
     (delete (cons (aref key 0) nil) keymap)))
 
 (defmacro kmu-define-keys (mapvar feature &rest plist)
   "Define all keys in PLIST in the keymap stored in MAPVAR.
-If a key in PLIST is a string it has to be in the `naked' format
-without angle brackets.  `:remove' as a key definition means that
-the existing definition (if any) should be removed from the keymap
-using `kmu-remove-key'."
+
+MAPVAR is a variable whose value is (or will be) a keymap.
+FEATURE, if non-nil, is the feature provided by the library
+that defines MAPVAR.  PLIST is a property list of the form
+\(KEY DEF ...).
+
+Each KEY is a either an event sequence vector or a string as
+returned by `key-description'.  Each DEF can be anything that can
+be a key's definition (see `define-key').  Additionally it can be
+the keyword `:remove' in which case the existing definition (if
+any) is removed from KEYMAP using `kmu-remove-key' (which see).
+
+When FEATURE is nil MAPVAR's value is modified right away.
+Otherwise it is modified immediately after FEATURE is loaded.
+FEATURE may actually be a string, see `eval-after-load', though
+normally it is a symbol.
+
+Arguments aren't evaluated and therefor don't have to be quoted.
+Also see `kmu-define-keys-1' which does evaluate it's arguments."
   (declare (indent 2))
   (if feature
       `(eval-after-load ',feature
@@ -288,6 +340,9 @@ using `kmu-remove-key'."
     `(kmu-define-keys-1 ',mapvar ',plist)))
 
 (defun kmu-define-keys-1 (keymap plist)
+  "Define all keys in PLIST in the keymap KEYMAP.
+KEYMAP may also be a variable whose value is a keymap.
+Also see `kmu-define-keys'."
   (when (symbolp keymap)
     (setq keymap (symbol-value keymap)))
   (unless (keymapp keymap)
