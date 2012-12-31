@@ -218,7 +218,6 @@ Prompt with PROMPT.  A keymap variable is one for which
 ;;; Key Descriptions.
 
 (defun kmu-key-description (keys &optional prefix)
-  "Like `naked-key-description' but also handle some special cases."
   (let ((last (aref keys (1- (length keys)))))
     (if (and (consp last)
              (not (consp (cdr last))))
@@ -230,20 +229,14 @@ Prompt with PROMPT.  A keymap variable is one for which
           (concat (and prefix (concat (kmu-key-description prefix) " "))
                   (kmu-key-description (vector (car keys))) ".."
                   (kmu-key-description (vector (cdr keys)))))
-      ;; "Quote" certain events that cannot be encoded.
-      (case (aref keys 0)
-        (128     "128")
-        (4194303 "255")
-        (t
-         ;; Merge ESC into following event.
-         (let ((s (naked-key-description keys)))
-           (while (and (string-match
-                        "\\(ESC \\(C-\\)?\\([^ ]+\\)\\)" s)
-                       (save-match-data
-                         (not (string-match "\\(ESC\\|M-\\)"
-                                            (match-string 3 s)))))
-             (setq s (replace-match "\\2M-\\3" t nil s 1)))
-           s))))))
+      ;; Merge ESC into following event.
+      (let ((s (naked-key-description keys)))
+        (while (and (string-match "\\(ESC \\(C-\\)?\\([^ ]+\\)\\)" s)
+                    (save-match-data
+                      (not (string-match "\\(ESC\\|M-\\)"
+                                         (match-string 3 s)))))
+          (setq s (replace-match "\\2M-\\3" t nil s 1)))
+        s))))
 
 ;;; Defining Bindings.
 
