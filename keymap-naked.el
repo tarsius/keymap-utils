@@ -167,23 +167,6 @@ range."
       (funcall ,function (kmu-naked-key-description key) def))
    keymap))
 
-(defun kmu-sort-keys-predicate (order a b)
-  "Return t if A appears earlier than B in ORDER, nil otherwise.
-ORDER has to be a list of event descriptions (strings).  Instead
-of single events A and B can also be event sequences."
-  (let ((la (mapcar (lambda (k) (length (member k order))) (split-string a " ")))
-        (lb (mapcar (lambda (k) (length (member k order))) (split-string b " ")))
-        (ret nil))
-    (while (or la lb)
-      (cond ((not la)              (setq ret t   la nil lb nil))
-            ((not lb)              (setq ret nil la nil lb nil))
-            ((> (car la) (car lb)) (setq ret t   la nil lb nil))
-            ((< (car la) (car lb)) (setq ret nil la nil lb nil))
-            ((= (car la) (car lb)) (setq la (cdr la)
-                                         lb (cdr lb)))
-            (t (error "Impossible event sort error"))))
-    ret))
-
 (provide 'keymap-naked)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
