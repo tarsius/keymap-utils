@@ -147,26 +147,6 @@ using `kmu-remove-key'."
            (setq s (replace-match "\\2M-\\3" t nil s 1)))
          s)))))
 
-(defun kmu-map-naked-keymap (function keymap)
-  "Call FUNCTION once for each event sequence binding in KEYMAP.
-FUNCTION is called with two arguments: an event sequence string
-as returned by `naked-key-description', and the definition the
-last event in that sequence it is bound to.
-
-When the definition is another keymap then instead of calling
-FUNCTION with that event and it's definition once, FUNCTION is
-recursively called with each separate event sequence and it's
-non-keymap definition.
-
-If the last event in an event sequence is actually a character
-range then that is represented as \"START .. END\".  As usual
-this might be preceded by other events leading to the character
-range."
-  (kmu-map-keymap
-   `(lambda (key def)
-      (funcall ,function (kmu-naked-key-description key) def))
-   keymap))
-
 (provide 'keymap-naked)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
