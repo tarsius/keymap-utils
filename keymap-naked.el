@@ -118,7 +118,7 @@ using `kmu-remove-key'."
 	 (forward-sexp))))
    mapvar))
 
-(defun kmu-naked-key-description (keys)
+(defun kmu-key-description (keys)
   "Like `naked-key-description' but also handle some special cases."
   (if (consp keys)
       ;; A string representation for character ranges.
@@ -129,9 +129,9 @@ using `kmu-remove-key'."
         (concat
          (when prefix
            (concat
-            (kmu-naked-key-description (vconcat (nreverse prefix))) " "))
-         (kmu-naked-key-description (vector (car keys))) ".."
-         (kmu-naked-key-description (vector (cdr keys)))))
+            (kmu-key-description (vconcat (nreverse prefix))) " "))
+         (kmu-key-description (vector (car keys))) ".."
+         (kmu-key-description (vector (cdr keys)))))
     ;; "Quote" certain events that cannot be encoded.
     (case (aref keys 0)
       (128     "128")
