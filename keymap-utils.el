@@ -248,7 +248,7 @@ instead of `kbd'."
       (let ((s (if (and naked (fboundp 'naked-edmacro-parse-keys))
                    (naked-key-description keys)
                  (key-description keys))))
-        (while (and (string-match "\\(ESC \\(C-\\)?\\([^ ]+\\)\\)" s)
+        (while (and (string-match "\\(ESC \\([ACHsS]-\\)*\\([^ ]+\\)\\)" s)
                     (save-match-data
                       (not (string-match "\\(ESC\\|M-\\)"
                                          (match-string 3 s)))))
