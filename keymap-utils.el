@@ -273,8 +273,9 @@ it can also be a naked key description without any angle brackets."
 
 (defun kmu-remove-key (keymap key)
   "In KEYMAP, remove key sequence KEY.
-If KEY is a string then it has to be a key description as
-returned by `key-description'.
+Make the event KEY truely undefined in KEYMAP by removing the
+respective element of KEYMAP (or a sub-keymap) as opposed to
+merely setting it's binding to nil.
 
 There are several ways in which a key can be \"undefined\":
 
@@ -292,20 +293,29 @@ keymap.  On the other hand, a binding of nil does _not_ override
 lower-precedence keymaps; thus, if the local map gives a binding
 of nil, Emacs uses the binding from the global map.
 
-All other events are truly undefined in KEYMAP.  This command
-makes an event which was previously defined undefined again, by
-removing from KEYMAP without leaving any traces."
+All other events are truly undefined in KEYMAP.
+
+Note that in a full keymap all characters without modifiers are
+always bound to something, the closest these events can get to
+being undefined is being bound to nil like B above."
   (when (stringp key)
     (setq key (if (fboundp 'naked-edmacro-parse-keys)
                   (naked-edmacro-parse-keys key t)
                 (edmacro-parse-keys key t))))
   (define-key keymap key nil)
-  (if (> (length key) 1)
-      ;; FIXME this assumes that ({naked-,}edmacro-parse-keys "M-a" t)
-      ;; returns [27 97] but actually it returns [134217825].
-      (delete (last (setq key (append key nil)))
-              (lookup-key keymap (apply 'vector (butlast key))))
-    (delete (cons (aref key 0) nil) keymap)))
+  (setq key (mapcan (lambda (k)
+                      (if (and (integerp k)
+                               (/= (logand k ?\M-\^@) 0))
+                          (list ?\e (- k ?\M-\^@))
+                        (list k)))
+                    key))
+  (if (= (length key) 1)
+      (delete key keymap)
+    (let* ((prefix (vconcat (butlast key)))
+           (submap (lookup-key keymap prefix)))
+      (delete (last key) submap)
+      (when (= (length submap) 1)
+        (kmu-remove-key keymap prefix)))))
 
 (defmacro kmu-define-keys (mapvar feature &rest plist)
   "Define all keys in PLIST in the keymap stored in MAPVAR.
