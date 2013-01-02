@@ -244,10 +244,10 @@ instead of `kbd'."
           (concat (and prefix (concat (kmu-key-description prefix) " "))
                   (kmu-key-description (vector (car keys))) ".."
                   (kmu-key-description (vector (cdr keys)))))
-      ;; Merge ESC into following event.
       (let ((s (if (and naked (fboundp 'naked-edmacro-parse-keys))
                    (naked-key-description keys)
                  (key-description keys))))
+        ;; Merge ESC into following event.
         (while (and (string-match "\\(ESC \\([ACHsS]-\\)*\\([^ ]+\\)\\)" s)
                     (save-match-data
                       (not (string-match "\\(ESC\\|M-\\)"
