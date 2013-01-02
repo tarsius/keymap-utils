@@ -394,14 +394,14 @@ Also see `kmu-define-keys'."
 
 (defvar kmu-char-range-minimum 9)
 
-(defun kmu-keymap-events (keymap &optional prefix)
+(defun kmu-keymap-bindings (keymap &optional prefix)
   (let ((min (1- kmu-char-range-minimum))
         v vv)
     (map-keymap-internal
      (lambda (key def)
        (if (kmu-keymap-list-p def)
            (setq v (append
-                    (kmu-keymap-events def (vconcat prefix (list key)))
+                    (kmu-keymap-bindings def (vconcat prefix (list key)))
                     v))
          (push (list key def) v)))
      keymap)
@@ -449,9 +449,9 @@ FUNCTION once for each event sequence and the definition it is
 bound to .
 
 The last event in an event sequence may be a character range."
-  (mapc (lambda (e) (apply function e)) (kmu-keymap-events keymap)))
+  (mapc (lambda (e) (apply function e)) (kmu-keymap-bindings keymap)))
 
-(defun kmu-keymap-bindings (keymap)
+(defun kmu-keymap-definitions (keymap)
   (let (bs)
     (kmu-map-keymap (lambda (key def)
                       (let ((a (assq def bs)))
@@ -460,8 +460,8 @@ The last event in an event sequence may be a character range."
                     keymap)
     bs))
 
-(defun kmu-map-keymap-bindings (function keymap)
-  (mapc (lambda (e) (apply function e)) (kmu-keymap-bindings keymap)))
+(defun kmu-map-keymap-definitions (function keymap)
+  (mapc (lambda (e) (apply function e)) (kmu-keymap-definitions keymap)))
 
 ;;; `kmu-save-vanilla-keymaps-mode'.
 
