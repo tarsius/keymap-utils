@@ -79,6 +79,12 @@ A sparse keymap is a keymap whose second element is not a char-table."
     (and (keymapp object)
          (not (char-table-p (cadr object))))))
 
+(defun kmu-menu-binding-p (object)
+  "Return t if OBJECT is a menu binding."
+  (and (listp object)
+       (or (stringp (car object))
+           (eq (car object) 'menu-item))))
+
 ;;; Key Lookup.
 
 (defun kmu-lookup-local-key (keymap key &optional accept-default)
@@ -451,17 +457,21 @@ bound to .
 The last event in an event sequence may be a character range."
   (mapc (lambda (e) (apply function e)) (kmu-keymap-bindings keymap)))
 
-(defun kmu-keymap-definitions (keymap)
+(defun kmu-keymap-definitions (keymap &optional nomenu nomouse)
   (let (bs)
     (kmu-map-keymap (lambda (key def)
-                      (let ((a (assq def bs)))
-                        (if a (setcdr a (cons key (cdr a)))
-                          (push (list def key) bs))))
+                      (cond ((and nomenu (kmu-menu-binding-p def)))
+                            ((and nomouse (mouse-event-p key)))
+                            (t
+                             (let ((a (assq def bs)))
+                               (if a (setcdr a (cons key (cdr a)))
+                                 (push (list def key) bs))))))
                     keymap)
     bs))
 
-(defun kmu-map-keymap-definitions (function keymap)
-  (mapc (lambda (e) (apply function e)) (kmu-keymap-definitions keymap)))
+(defun kmu-map-keymap-definitions (function keymap &optional nomenu nomouse)
+  (mapc (lambda (e) (apply function e))
+        (kmu-keymap-definitions keymap nomenu nomouse)))
 
 ;;; `kmu-save-vanilla-keymaps-mode'.
 
