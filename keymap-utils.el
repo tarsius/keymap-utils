@@ -373,7 +373,7 @@ Also see `kmu-define-keys'."
         (kmu-define-key keymap key def)))))
 
 (defun save-kmu-define-keys (file mapvar feature bindings)
-  (require 'sexp)
+  (require 'save-sexp)
   (save-sexp-save-generic
    file
    (lambda (var)
@@ -461,7 +461,7 @@ The last event in an event sequence may be a character range."
   (let (bs)
     (kmu-map-keymap (lambda (key def)
                       (cond ((and nomenu (kmu-menu-binding-p def)))
-                            ((and nomouse (mouse-event-p key)))
+                            ((and nomouse (mouse-event-p (aref key 0))))
                             (t
                              (let ((a (assq def bs)))
                                (if a (setcdr a (cons key (cdr a)))
