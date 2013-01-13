@@ -246,8 +246,9 @@ instead of `kbd'."
         (progn
           (setq keys   (append keys nil)
                 prefix (vconcat prefix (butlast keys))
-                keys   (vconcat (last keys)))
-          (concat (and prefix (concat (kmu-key-description prefix) " "))
+                keys   (car (last keys)))
+          (concat (and prefix (> (length prefix) 1)
+                       (concat (kmu-key-description prefix) " "))
                   (kmu-key-description (vector (car keys))) ".."
                   (kmu-key-description (vector (cdr keys)))))
       (let ((s (if (and naked (fboundp 'naked-edmacro-parse-keys))
