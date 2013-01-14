@@ -262,6 +262,14 @@ instead of `kbd'."
           (setq s (replace-match "\\2M-\\3" t nil s 1)))
         s))))
 
+(defun kmu-edmacro-parse-keys (string need-vector)
+  (if (string-match "\\.\\." string)
+      (cons (naked-edmacro-parse-keys
+             (substring string 0 (match-beginning 0)) need-vector)
+            (naked-edmacro-parse-keys
+             (substring string (match-end 0)) need-vector))
+    (naked-edmacro-parse-keys string need-vector)))
+
 ;;; Defining Bindings.
 
 (defun kmu-define-key (keymap key def)
