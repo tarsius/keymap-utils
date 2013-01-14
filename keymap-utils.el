@@ -376,20 +376,23 @@ Also see `kmu-define-keys'."
 (defun save-kmu-define-keys (file-or-buffer mapvar feature bindings)
   (require 'save-sexp)
   (save-sexp-with-file-or-buffer file-or-buffer
-    (save-sexp-prepare 'kmu-define-keys nil mapvar)
-    (princ " ")
-    (prin1 feature)
-    (when bindings
-      (dolist (b bindings)
-        (princ "\n  ")
-        (prin1 (car b))
-        (princ " ")
-        (prin1 (cadr b))))
-    (forward-char)
-    (let ((beg (scan-sexps (point) -1)))
-      (indent-region beg (point))
-      (whitespace-cleanup-region beg (point))
-      (save-excursion (goto-char beg) (read (current-buffer))))))
+    (if (not bindings)
+        (save-sexp-delete (apply-partially 'save-sexp-search
+                                           'kmu-define-keys nil mapvar))
+      (save-sexp-prepare 'kmu-define-keys nil mapvar)
+      (princ " ")
+      (prin1 feature)
+      (when bindings
+        (dolist (b bindings)
+          (princ "\n  ")
+          (prin1 (car b))
+          (princ " ")
+          (prin1 (cadr b))))
+      (forward-char)
+      (let ((beg (scan-sexps (point) -1)))
+        (indent-region beg (point))
+        (whitespace-cleanup-region beg (point))
+        (save-excursion (goto-char beg) (read (current-buffer)))))))
 
 ;;; Keymap Mapping.
 
