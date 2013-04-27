@@ -413,7 +413,7 @@ Also see `kmu-define-keys'."
      (lambda (key def)
        (if (kmu-keymap-list-p def)
            (setq v (append
-                    (kmu-keymap-bindings def (vconcat prefix (list key)))
+                    (kmu-keymap-bindings def (list key))
                     v))
          (push (list key def) v)))
      keymap)
