@@ -496,7 +496,7 @@ with your modifications.  To make sure you really get the vanilla
 bindings turn on this mode as early as possible."
   :global t
   :keymap nil
-  :lighter kmu-vanilla-keymap-mode-lighter
+  :lighter kmu-save-vanilla-keymaps-mode-lighter
   (if kmu-save-vanilla-keymaps-mode
       (progn
         (kmu-save-vanilla-keymaps)
