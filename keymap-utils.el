@@ -32,7 +32,7 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'naked nil t)
+(require 'naked)
 
 (declare-function save-sexp-save-generic "save-sexp")
 (declare-function save-sexp-delete "save-sexp")
