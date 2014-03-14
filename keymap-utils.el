@@ -244,9 +244,7 @@ For an approximate inverse of this, see `kmu-edmacro-parse-keys'."
       (let ((s (naked-key-description keys)))
         ;; Merge ESC into following event.
         (while (and (string-match "\\(ESC \\([ACHsS]-\\)*\\([^ ]+\\)\\)" s)
-                    (save-match-data
-                      (not (string-match "\\(ESC\\|M-\\)"
-                                         (match-string 3 s)))))
+                    (not (string-match-p "\\(ESC\\|M-\\)" (match-string 3 s))))
           (setq s (replace-match "\\2M-\\3" t nil s 1)))
         s))))
 
