@@ -242,7 +242,7 @@ For an approximate inverse of this, see `kmu-edmacro-parse-keys'."
                   (kmu-key-description (vector (car keys))) ".."
                   (kmu-key-description (vector (cdr keys)))))
       (let ((s (naked-key-description keys)))
-        ;; Merge ESC into following event.
+        ;; Merge ESC into following event.  FIXME is this still required?
         (while (and (string-match "\\(ESC \\([ACHsS]-\\)*\\([^ ]+\\)\\)" s)
                     (not (string-match-p "\\(ESC\\|M-\\)" (match-string 3 s))))
           (setq s (replace-match "\\2M-\\3" t nil s 1)))
