@@ -228,7 +228,7 @@ Prompt with PROMPT.  A keymap variable is one for which
 Optional arg PREFIX is the sequence of keys leading up to KEYS.
 For example, [?\C-x ?l] is converted into the string \"C-x l\".
 
-For an approximate inverse of this, see `kmu-edmacro-parse-keys'."
+For an approximate inverse of this, see `kmu-parse-key-description'."
   (let ((last (aref keys (1- (length keys)))))
     (if (and (consp last)
              (not (consp (cdr last))))
@@ -248,7 +248,7 @@ For an approximate inverse of this, see `kmu-edmacro-parse-keys'."
           (setq s (replace-match "\\2M-\\3" t nil s 1)))
         s))))
 
-(defun kmu-edmacro-parse-keys (string need-vector)
+(defun kmu-parse-key-description (string &optional need-vector)
   (if (string-match "\\.\\." string)
       (cons (naked-edmacro-parse-keys
              (substring string 0 (match-beginning 0)) need-vector)
