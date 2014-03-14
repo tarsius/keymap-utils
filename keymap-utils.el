@@ -37,7 +37,7 @@
 (declare-function save-sexp-delete "save-sexp")
 (declare-function save-sexp-prepare "save-sexp")
 
-;;; Predicates.
+;;; Predicates
 
 (defun kmu-keymap-variable-p (object)
   "Return t if OBJECT is a symbol whose variable definition is a keymap."
@@ -84,7 +84,7 @@ A sparse keymap is a keymap whose second element is not a char-table."
        (or (stringp (car object))
            (eq (car object) 'menu-item))))
 
-;;; Key Lookup.
+;;; Key Lookup
 
 (defun kmu-lookup-local-key (keymap key &optional accept-default)
   "In KEYMAP, look up key sequence KEY.  Return the definition.
@@ -134,7 +134,7 @@ the parent keymap of any keymap a key in KEYMAP is bound to."
                  new-keymap)))
     (collect-parmaps (copy-keymap keymap))))
 
-;;; Keymap Variables.
+;;; Keymap Variables
 
 (defun kmu-keymap-variable (keymap &rest exclude)
   "Return a symbol whose value is KEYMAP.
@@ -220,7 +220,7 @@ Prompt with PROMPT.  A keymap variable is one for which
         (error "No mapvar selected")
       mapvar)))
 
-;;; Key Descriptions.
+;;; Key Descriptions
 
 (defun kmu-key-description (keys &optional prefix)
   "Return a pretty description of key-sequence KEYS.
@@ -358,7 +358,7 @@ For an approximate inverse of this, see `kmu-parse-key-description'."
                                        ch (+ ch 128))))
         res))))
 
-;;; Defining Bindings.
+;;; Defining Bindings
 
 (defun kmu-define-key (keymap key def)
   "In KEYMAP, define key sequence KEY as DEF.
@@ -483,7 +483,7 @@ Also see `kmu-define-keys'."
         (whitespace-cleanup-region beg (point))
         (save-excursion (goto-char beg) (read (current-buffer)))))))
 
-;;; Keymap Mapping.
+;;; Keymap Mapping
 
 (defvar kmu-char-range-minimum 9)
 
@@ -560,7 +560,7 @@ The last event in an event sequence may be a character range."
   (mapc (lambda (e) (apply function e))
         (kmu-keymap-definitions keymap nomenu nomouse)))
 
-;;; `kmu-save-vanilla-keymaps-mode'.
+;;; Vanilla Keymaps
 
 (defvar kmu-save-vanilla-keymaps-mode-lighter " vanilla")
 
@@ -611,7 +611,7 @@ bindings turn on this mode as early as possible."
   (equal (symbol-value mapvar)
          (assoc mapvar kmu-vanilla-keymaps)))
 
-;;; Various.
+;;; Various
 
 (defun kmu-merge-esc-into-global-map ()
   (when (eq (lookup-key (current-global-map) [27]) 'ESC-prefix)
