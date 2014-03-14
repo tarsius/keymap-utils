@@ -223,7 +223,7 @@ Prompt with PROMPT.  A keymap variable is one for which
 
 ;;; Key Descriptions.
 
-(defun kmu-key-description (keys &optional prefix naked)
+(defun kmu-key-description (keys &optional prefix)
   "Return a pretty description of key-sequence KEYS.
 Optional arg PREFIX is the sequence of keys leading up to KEYS.
 For example, [?\C-x ?l] is converted into the string \"C-x l\".
@@ -241,9 +241,7 @@ For an approximate inverse of this, see `kmu-edmacro-parse-keys'."
                        (concat (kmu-key-description prefix) " "))
                   (kmu-key-description (vector (car keys))) ".."
                   (kmu-key-description (vector (cdr keys)))))
-      (let ((s (if (and naked (fboundp 'naked-edmacro-parse-keys))
-                   (naked-key-description keys)
-                 (key-description keys))))
+      (let ((s (naked-key-description keys)))
         ;; Merge ESC into following event.
         (while (and (string-match "\\(ESC \\([ACHsS]-\\)*\\([^ ]+\\)\\)" s)
                     (save-match-data
