@@ -225,20 +225,10 @@ Prompt with PROMPT.  A keymap variable is one for which
 
 (defun kmu-key-description (keys &optional prefix naked)
   "Return a pretty description of key-sequence KEYS.
-Optional argument PREFIX is the sequence of keys leading up
-to KEYS.  For example, [24 108] is converted into the string
-\"C-x l\".
+Optional arg PREFIX is the sequence of keys leading up to KEYS.
+For example, [?\C-x ?l] is converted into the string \"C-x l\".
 
-Unlike with `key-description' the last element of keys can be a
-character range.  For example, [(97 . 101)] is converted to the
-string \"a..e\".  Emacs doesn't deal with character ranges in
-event sequences and descriptions; unless special care is taken
-this is only suitable for human consumption.
-
-If optional NAKED is non-nil and library `naked' (which see) is
-loaded return a naked key description without angle brackets.
-To convert such a string into an event vector again use `naked'
-instead of `kbd'."
+For an approximate inverse of this, see `kmu-edmacro-parse-keys'."
   (let ((last (aref keys (1- (length keys)))))
     (if (and (consp last)
              (not (consp (cdr last))))
