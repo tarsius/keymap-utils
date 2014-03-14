@@ -262,14 +262,9 @@ For an approximate inverse of this, see `kmu-edmacro-parse-keys'."
   "In KEYMAP, define key sequence KEY as DEF.
 This is like `define-key' but if KEY is a string then it has to
 be a key description as returned by `key-description' and not a
-string like \"?\C-a\".  If library `naked' (which see) is loaded
-it can also be a naked key description without any angle brackets."
+string like \"?\C-a\"."
   (define-key keymap
-    (if (stringp key)
-        (if (fboundp 'naked-edmacro-parse-keys)
-            (naked-edmacro-parse-keys key t)
-          (edmacro-parse-keys key t))
-      key)
+    (if (stringp key) (naked-edmacro-parse-keys key t) key)
     def))
 
 (defun kmu-remove-key (keymap key)
@@ -300,9 +295,7 @@ Note that in a full keymap all characters without modifiers are
 always bound to something, the closest these events can get to
 being undefined is being bound to nil like B above."
   (when (stringp key)
-    (setq key (if (fboundp 'naked-edmacro-parse-keys)
-                  (naked-edmacro-parse-keys key t)
-                (edmacro-parse-keys key t))))
+    (setq key (naked-edmacro-parse-keys key t)))
   (define-key keymap key nil)
   (setq key (cl-mapcan (lambda (k)
                          (if (and (integerp k)
