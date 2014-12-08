@@ -33,6 +33,7 @@
 
 (defvar recentf-exclude)
 (declare-function recentf-expand-file-name "recentf" (name))
+(declare-function save-sexp-with-file-or-buffer "save-sexp")
 (declare-function save-sexp-save-generic "save-sexp")
 (declare-function save-sexp-delete "save-sexp")
 (declare-function save-sexp-prepare "save-sexp")
