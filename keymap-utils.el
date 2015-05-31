@@ -1,6 +1,6 @@
 ;;; keymap-utils.el --- keymap utilities
 
-;; Copyright (C) 2008-2014  Jonas Bernoulli
+;; Copyright (C) 2008-2015  Jonas Bernoulli
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Package-Requires: ((cl-lib "0.3"))
@@ -30,13 +30,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-
-(defvar recentf-exclude)
-(declare-function recentf-expand-file-name "recentf" (name))
-(declare-function save-sexp-with-file-or-buffer "save-sexp")
-(declare-function save-sexp-save-generic "save-sexp")
-(declare-function save-sexp-delete "save-sexp")
-(declare-function save-sexp-prepare "save-sexp")
 
 ;;; Predicates
 
@@ -463,26 +456,20 @@ Also see `kmu-define-keys'."
           (kmu-remove-key keymap key)
         (kmu-define-key keymap key def)))))
 
-(defun save-kmu-define-keys (file-or-buffer mapvar feature bindings)
-  (require 'save-sexp)
-  (save-sexp-with-file-or-buffer file-or-buffer
-    (if (not bindings)
-        (save-sexp-delete (apply-partially 'save-sexp-search
-                                           'kmu-define-keys nil mapvar))
-      (save-sexp-prepare 'kmu-define-keys nil mapvar)
-      (princ " ")
-      (prin1 feature)
-      (when bindings
-        (dolist (b bindings)
-          (princ "\n  ")
-          (prin1 (car b))
-          (princ " ")
-          (prin1 (cadr b))))
-      (forward-char)
-      (let ((beg (scan-sexps (point) -1)))
-        (indent-region beg (point))
-        (whitespace-cleanup-region beg (point))
-        (save-excursion (goto-char beg) (read (current-buffer)))))))
+(defun save-kmu-define-keys (file mapvar feature bindings)
+  (with-current-buffer (find-file-noselect file)
+    (widen)
+    (if (re-search-forward (format "^(kmu-define-keys %s "
+                                   (ork-entry-get-symbol "mapvar"))
+                           nil t)
+        (progn (beginning-of-line)
+               (delete-region (point) (progn (end-of-defun) (point))))
+      (goto-char (point-max)))
+    (when bindings
+      (insert (format "(kmu-define-keys %s %s" mapvar feature))
+      (--each bindings
+        (insert (format "\n  %S %s" (car it) (cadr it))))
+      (insert ")\n"))))
 
 ;;; Keymap Mapping
 
