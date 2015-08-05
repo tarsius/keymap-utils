@@ -456,21 +456,6 @@ Also see `kmu-define-keys'."
           (kmu-remove-key keymap key)
         (kmu-define-key keymap key def)))))
 
-(defun save-kmu-define-keys (file mapvar feature bindings)
-  (with-current-buffer (find-file-noselect file)
-    (widen)
-    (if (re-search-forward (format "^(kmu-define-keys %s "
-                                   (ork-entry-get-symbol "mapvar"))
-                           nil t)
-        (progn (beginning-of-line)
-               (delete-region (point) (progn (end-of-defun) (point))))
-      (goto-char (point-max)))
-    (when bindings
-      (insert (format "(kmu-define-keys %s %s" mapvar feature))
-      (--each bindings
-        (insert (format "\n  %S %s" (car it) (cadr it))))
-      (insert ")\n"))))
-
 ;;; Keymap Mapping
 
 (defvar kmu-char-range-minimum 9)
