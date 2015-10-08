@@ -452,7 +452,7 @@ Also see `kmu-define-keys'."
       (error "Odd number of elements in PLIST"))
     (let ((key (pop plist))
           (def (pop plist)))
-      (if (eq def :remove)
+      (if (memq def '(:remove -> >))
           (kmu-remove-key keymap key)
         (kmu-define-key keymap key def)))))
 
