@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'dash)
 
 ;;; Predicates
 
@@ -426,7 +427,7 @@ Otherwise it is modified immediately after FEATURE is loaded.
 FEATURE may actually be a string, see `eval-after-load', though
 normally it is a symbol.
 
-Arguments aren't evaluated and therefor don't have to be quoted.
+Arguments aren't evaluated and therefore don't have to be quoted.
 Also see `kmu-define-keys-1' which does evaluate it's arguments."
   (declare (indent 2))
   (if feature
@@ -461,6 +462,10 @@ Also see `kmu-define-keys'."
 (defvar kmu-char-range-minimum 9)
 
 (defun kmu-keymap-bindings (keymap &optional prefix)
+  "Return list of bindings in KEYMAP, traversing included keymaps recursively.
+Each element of the returned list will be a list whose car is an event-sequence
+and whose second element is the function/command it is bound to.
+Prefix all key-sequences with PREFIX if supplied."
   (let ((min (1- kmu-char-range-minimum))
         v vv)
     (map-keymap-internal
@@ -509,15 +514,21 @@ FUNCTION is called with two arguments: the event sequence that is
 bound (a vector), and the definition it is bound to.
 
 When the definition of an event is another keymap list then
-recursively build up a event sequence and instead of calling
+recursively build up an event sequence and instead of calling
 FUNCTION with the initial event and it's definition once, call
 FUNCTION once for each event sequence and the definition it is
-bound to .
+bound to.
 
 The last event in an event sequence may be a character range."
   (mapc (lambda (e) (apply function e)) (kmu-keymap-bindings keymap)))
 
 (defun kmu-keymap-definitions (keymap &optional nomenu nomouse)
+  "Return a list of all definitions and corresponding keys in KEYMAP.
+Any keymap definitions in KEYMAP will be traversed recursively.
+Each element of the returned list will be a list whose car is a definition
+and whose cdr is a list of keys bound to that definition.
+If NOMENU is non-nil then skip menu items, and if NOMOUSE is non-nil
+skip mouse events."
   (let (bs)
     (kmu-map-keymap (lambda (key def)
                       (cond ((and nomenu (kmu-menu-binding-p def)))
@@ -530,6 +541,11 @@ The last event in an event sequence may be a character range."
     bs))
 
 (defun kmu-map-keymap-definitions (function keymap &optional nomenu nomouse)
+  "Call FUNCTION once for each different definition in KEYMAP.
+FUNCTION will be called with 2 args: the key binding definition and the list of
+all event sequences bound to that definition.
+Any keymap definitions in KEYMAP will be traversed recursively as in `kmu-map-keymap'.
+The optional NOMENU & NOMOUSE args are as for `kmu-map-keymap'."
   (mapc (lambda (e) (apply function e))
         (kmu-keymap-definitions keymap nomenu nomouse)))
 
@@ -599,6 +615,47 @@ bindings turn on this mode as early as possible."
                    (symbol-name mapvar)
                  "Cannot determine current local keymap variable")))
     mapvar))
+
+(defun kmu-eval-keymap (keymap)
+  "Return the keymap pointed to by KEYMAP, or KEYMAP itself if it is a keymap."
+  (cond ((kmu-keymap-variable-p keymap) (eval keymap))
+        ((keymapp keymap) keymap)))
+
+(defun kmu-keymaps-in-file (file &optional eval)
+  "Return a list of keymaps and variables pointing to keymaps that are used in FILE.
+If EVAL is non-nil eval any variables in the returned list."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (goto-char (point-min))
+    (let ((sexps
+           (cl-loop with it
+                    while (setq it (condition-case v
+                                       (read (current-buffer)) (error nil)))
+                    collect it)))
+      (cl-remove-if-not
+       (lambda (x) (or (keymapp x)
+                       (kmu-keymap-variable-p x)))
+       (cl-remove-duplicates (-flatten sexps))))))
+
+(defun kmu-command-key-description (cmd &optional keymaps sep)
+  "Return description of key-sequence for CMD.
+The KEYMAPS can be a single keymap/variable or list of keymaps/variables to search for CMD,
+otherwise `overriding-local-map' is searched.
+By default the first keybinding will be returned, but if SEP is supplied it will be used
+to seperate the descriptions of all key-sequences bound to CMD.
+If there is no key-sequence for command then a string in the form \"M-x CMD\" will be returned."
+  (let* ((keymaps2 (if keymaps
+		       (if (listp keymaps)
+			   ;; Note: don't bother trying to put this function in
+			   ;; a cl-flet form, or you won't be able to do the mapcar
+			   (mapcar 'kmu-eval-keymap keymaps)
+			 (kmu-eval-keymap keymaps))))
+	 (key (where-is-internal cmd (or keymaps2 overriding-local-map) (unless sep t))))
+    (if key
+        (if sep
+            (mapconcat 'key-description key sep)
+          (key-description key))
+      (format "M-x %s" cmd))))
 
 (provide 'keymap-utils)
 ;; Local Variables:
