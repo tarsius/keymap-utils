@@ -426,7 +426,7 @@ Otherwise it is modified immediately after FEATURE is loaded.
 FEATURE may actually be a string, see `eval-after-load', though
 normally it is a symbol.
 
-Arguments aren't evaluated and therefor don't have to be quoted.
+Arguments aren't evaluated and therefore don't have to be quoted.
 Also see `kmu-define-keys-1' which does evaluate it's arguments."
   (declare (indent 2))
   (if feature
@@ -461,6 +461,10 @@ Also see `kmu-define-keys'."
 (defvar kmu-char-range-minimum 9)
 
 (defun kmu-keymap-bindings (keymap &optional prefix)
+  "Return list of bindings in KEYMAP, traversing included keymaps recursively.
+Each element of the returned list will be a list whose car is an event-sequence
+and whose second element is the function/command it is bound to.
+Prefix all key-sequences with PREFIX if supplied."
   (let ((min (1- kmu-char-range-minimum))
         v vv)
     (map-keymap-internal
@@ -509,15 +513,21 @@ FUNCTION is called with two arguments: the event sequence that is
 bound (a vector), and the definition it is bound to.
 
 When the definition of an event is another keymap list then
-recursively build up a event sequence and instead of calling
+recursively build up an event sequence and instead of calling
 FUNCTION with the initial event and it's definition once, call
 FUNCTION once for each event sequence and the definition it is
-bound to .
+bound to.
 
 The last event in an event sequence may be a character range."
   (mapc (lambda (e) (apply function e)) (kmu-keymap-bindings keymap)))
 
 (defun kmu-keymap-definitions (keymap &optional nomenu nomouse)
+  "Return a list of all definitions and corresponding keys in KEYMAP.
+Any keymap definitions in KEYMAP will be traversed recursively.
+Each element of the returned list will be a list whose car is a definition
+and whose cdr is a list of keys bound to that definition.
+If NOMENU is non-nil then skip menu items, and if NOMOUSE is non-nil
+skip mouse events."
   (let (bs)
     (kmu-map-keymap (lambda (key def)
                       (cond ((and nomenu (kmu-menu-binding-p def)))
@@ -530,6 +540,11 @@ The last event in an event sequence may be a character range."
     bs))
 
 (defun kmu-map-keymap-definitions (function keymap &optional nomenu nomouse)
+  "Call FUNCTION once for each different definition in KEYMAP.
+FUNCTION will be called with 2 args: the key binding definition and the list of
+all event sequences bound to that definition.
+Any keymap definitions in KEYMAP will be traversed recursively as in `kmu-map-keymap'.
+The optional NOMENU & NOMOUSE args are as for `kmu-map-keymap'."
   (mapc (lambda (e) (apply function e))
         (kmu-keymap-definitions keymap nomenu nomouse)))
 
