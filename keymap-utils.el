@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'dash)
 
 ;;; Predicates
 
@@ -614,6 +615,47 @@ bindings turn on this mode as early as possible."
                    (symbol-name mapvar)
                  "Cannot determine current local keymap variable")))
     mapvar))
+
+(defun kmu-eval-keymap (keymap)
+  "Return the keymap pointed to by KEYMAP, or KEYMAP itself if it is a keymap."
+  (cond ((kmu-keymap-variable-p keymap) (eval keymap))
+        ((keymapp keymap) keymap)))
+
+(defun kmu-keymaps-in-file (file &optional eval)
+  "Return a list of keymaps and variables pointing to keymaps that are used in FILE.
+If EVAL is non-nil eval any variables in the returned list."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (goto-char (point-min))
+    (let ((sexps
+           (cl-loop with it
+                    while (setq it (condition-case v
+                                       (read (current-buffer)) (error nil)))
+                    collect it)))
+      (cl-remove-if-not
+       (lambda (x) (or (keymapp x)
+                       (kmu-keymap-variable-p x)))
+       (cl-remove-duplicates (-flatten sexps))))))
+
+(defun kmu-command-key-description (cmd &optional keymaps sep)
+  "Return description of key-sequence for CMD.
+The KEYMAPS can be a single keymap/variable or list of keymaps/variables to search for CMD,
+otherwise `overriding-local-map' is searched.
+By default the first keybinding will be returned, but if SEP is supplied it will be used
+to seperate the descriptions of all key-sequences bound to CMD.
+If there is no key-sequence for command then a string in the form \"M-x CMD\" will be returned."
+  (let* ((keymaps2 (if keymaps
+		       (if (listp keymaps)
+			   ;; Note: don't bother trying to put this function in
+			   ;; a cl-flet form, or you won't be able to do the mapcar
+			   (mapcar 'kmu-eval-keymap keymaps)
+			 (kmu-eval-keymap keymaps))))
+	 (key (where-is-internal cmd (or keymaps2 overriding-local-map) (unless sep t))))
+    (if key
+        (if sep
+            (mapconcat 'key-description key sep)
+          (key-description key))
+      (format "M-x %s" cmd))))
 
 (provide 'keymap-utils)
 ;; Local Variables:
