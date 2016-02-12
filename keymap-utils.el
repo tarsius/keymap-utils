@@ -407,19 +407,25 @@ being undefined is being bound to nil like B above."
       (when (= (length submap) 1)
         (kmu-remove-key keymap prefix)))))
 
-(defmacro kmu-define-keys (mapvar feature &rest plist)
-  "Define all keys in PLIST in the keymap stored in MAPVAR.
+(defmacro kmu-define-keys (mapvar feature &rest args)
+  "Define all keys in ARGS in the keymap stored in MAPVAR.
 
 MAPVAR is a variable whose value is (or will be) a keymap.
-FEATURE, if non-nil, is the feature provided by the library
-that defines MAPVAR.  PLIST is a property list of the form
-\(KEY DEF ...).
+FEATURE, if non-nil, is the feature provided by the library that
+defines MAPVAR.
+
+ARGS basically has the form (KEY DEF ...), but in place of a KEY
+the symbol `_' can appear in which case the folloing element has
+to be a KEY.  This is useful for alignment.
 
 Each KEY is a either an event sequence vector or a string as
 returned by `key-description'.  Each DEF can be anything that can
-be a key's definition (see `define-key').  Additionally it can be
-the keyword `:remove' in which case the existing definition (if
+be a key's definition (see `define-key').  Alternatively a DEF
+can be `:remove' or `>' in which case the existing definition (if
 any) is removed from KEYMAP using `kmu-remove-key' (which see).
+Finally a DEF can be `=' or `~' in which case it and the
+preceding KEY are ignored.  This is useful for documentation
+purposes.
 
 When FEATURE is nil MAPVAR's value is modified right away.
 Otherwise it is modified immediately after FEATURE is loaded.
@@ -436,8 +442,8 @@ Also see `kmu-define-keys-1' which does evaluate it's arguments."
               ;; `kmu-save-vanilla-keymaps' comes later in
               ;; `after-load-functions'.
               (kmu-save-vanilla-keymap ',mapvar))
-            (kmu-define-keys-1 ',mapvar ',plist)))
-    `(kmu-define-keys-1 ',mapvar ',plist)))
+            (kmu-define-keys-1 ',mapvar ',args)))
+    `(kmu-define-keys-1 ',mapvar ',args)))
 
 (defun kmu-define-keys-1 (keymap args)
   "Define all keys in ARGS in the keymap KEYMAP.
