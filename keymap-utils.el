@@ -439,22 +439,22 @@ Also see `kmu-define-keys-1' which does evaluate it's arguments."
             (kmu-define-keys-1 ',mapvar ',plist)))
     `(kmu-define-keys-1 ',mapvar ',plist)))
 
-(defun kmu-define-keys-1 (keymap plist)
-  "Define all keys in PLIST in the keymap KEYMAP.
+(defun kmu-define-keys-1 (keymap args)
+  "Define all keys in ARGS in the keymap KEYMAP.
 KEYMAP may also be a variable whose value is a keymap.
 Also see `kmu-define-keys'."
   (when (symbolp keymap)
     (setq keymap (symbol-value keymap)))
   (unless (keymapp keymap)
     (error "Not a keymap"))
-  (while plist
-    (unless (cdr plist)
-      (error "Odd number of elements in PLIST"))
-    (let ((key (pop plist))
-          (def (pop plist)))
-      (if (memq def '(:remove >))
-          (kmu-remove-key keymap key)
-        (kmu-define-key keymap key def)))))
+  (while args
+    (let ((key (pop args)))
+      (unless (eq key '_)
+        (let ((def (pop args)))
+          (pcase def
+            ((or '= '~))
+            ((or '> :remove) (kmu-remove-key keymap key))
+            (_               (kmu-define-key keymap key def))))))))
 
 ;;; Keymap Mapping
 
