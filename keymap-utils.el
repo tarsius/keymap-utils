@@ -1,6 +1,6 @@
 ;;; keymap-utils.el --- keymap utilities
 
-;; Copyright (C) 2008-2015  Jonas Bernoulli
+;; Copyright (C) 2008-2016  Jonas Bernoulli
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Package-Requires: ((cl-lib "0.3"))
@@ -452,7 +452,7 @@ Also see `kmu-define-keys'."
       (error "Odd number of elements in PLIST"))
     (let ((key (pop plist))
           (def (pop plist)))
-      (if (memq def '(:remove -> >))
+      (if (memq def '(:remove >))
           (kmu-remove-key keymap key)
         (kmu-define-key keymap key def)))))
 
