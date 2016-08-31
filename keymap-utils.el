@@ -452,10 +452,12 @@ Also see `kmu-define-keys'."
     (let ((key (pop args)))
       (unless (eq key '_)
         (let ((def (pop args)))
-          (pcase def
-            ((or '= '~))
-            ((or '> :remove) (kmu-remove-key keymap key))
-            (_               (kmu-define-key keymap key def))))))))
+          (cl-case def
+            ((= ~))
+            ((> :remove)
+             (kmu-remove-key keymap key))
+            (t
+             (kmu-define-key keymap key def))))))))
 
 ;;; Keymap Mapping
 
