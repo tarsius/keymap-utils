@@ -423,9 +423,8 @@ returned by `key-description'.  Each DEF can be anything that can
 be a key's definition (see `define-key').  Alternatively a DEF
 can be `:remove' or `>' in which case the existing definition (if
 any) is removed from KEYMAP using `kmu-remove-key' (which see).
-Finally a DEF can be `=' or `~' in which case it and the
-preceding KEY are ignored.  This is useful for documentation
-purposes.
+Finally a DEF can be `=' in which case it and the preceding KEY
+are ignored.  This is useful for documentation purposes.
 
 When FEATURE is nil MAPVAR's value is modified right away.
 Otherwise it is modified immediately after FEATURE is loaded.
@@ -453,9 +452,13 @@ Also see `kmu-define-keys'."
       (unless (eq key '_)
         (let ((def (pop args)))
           (cl-case def
-            ((= ~))
+            (=)
             ((> :remove)
-             (kmu-remove-key keymap key))
+             (unless (cl-member-if (lambda (form)
+                                     (and (eq (car form) 'kmu-define-key)
+                                          (equal (car (cddr form)) key)))
+                                   body)
+               (kmu-remove-key keymap key)))
             (t
              (kmu-define-key keymap key def))))))))
 
