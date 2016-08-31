@@ -437,12 +437,7 @@ Also see `kmu-define-keys-1' which does evaluate its arguments."
   (declare (indent 2))
   (if feature
       `(eval-after-load ',feature
-         '(progn
-            (when kmu-save-vanilla-keymaps-mode
-              ;; `kmu-save-vanilla-keymaps' comes later in
-              ;; `after-load-functions'.
-              (kmu-save-vanilla-keymap ',mapvar))
-            (kmu-define-keys-1 ',mapvar ',args)))
+         '(kmu-define-keys-1 ',mapvar ',args))
     `(kmu-define-keys-1 ',mapvar ',args)))
 
 (defun kmu-define-keys-1 (keymap args)
