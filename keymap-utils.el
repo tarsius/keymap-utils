@@ -411,12 +411,12 @@ being undefined is being bound to nil like B above."
   "Define all keys in ARGS in the keymap stored in MAPVAR.
 
 MAPVAR is a variable whose value is (or will be) a keymap.
-FEATURE, if non-nil, is the feature provided by the library that
-defines MAPVAR.
+FEATURE, if non-nil, is the feature provided by the library
+that defines MAPVAR.
 
-ARGS basically has the form (KEY DEF ...), but in place of a KEY
-the symbol `_' can appear in which case the folloing element has
-to be a KEY.  This is useful for alignment.
+ARGS basically has the form (KEY DEF ...), but a KEY can be
+preceded by the symbol `_'.  It has no effect except being
+useful for alignment.
 
 Each KEY is a either an event sequence vector or a string as
 returned by `key-description'.  Each DEF can be anything that can
