@@ -572,10 +572,9 @@ bindings turn on this mode as early as possible."
 
 (defun kmu-save-vanilla-keymap (mapvar)
   (interactive (list (kmu-read-mapvar "Save keymap: ")))
-  (let ((e (assoc mapvar kmu-vanilla-keymaps)))
-    (unless e
-      (push (cons mapvar (copy-keymap (symbol-value mapvar)))
-            kmu-vanilla-keymaps))))
+  (unless (assoc mapvar kmu-vanilla-keymaps)
+    (push (cons mapvar (copy-keymap (symbol-value mapvar)))
+          kmu-vanilla-keymaps)))
 
 (defun kmu-restore-vanilla-keymap (mapvar)
   (let ((vanilla (assoc mapvar kmu-vanilla-keymaps)))
