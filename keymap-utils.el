@@ -431,36 +431,26 @@ Otherwise it is modified immediately after FEATURE is loaded.
 FEATURE may actually be a string, see `eval-after-load', though
 normally it is a symbol.
 
-Arguments aren't evaluated and therefore don't have to be quoted.
-Also see `kmu-define-keys-1' which does evaluate its arguments."
+Arguments aren't evaluated and therefore don't have to be quoted."
   (declare (indent 2))
-  (if feature
-      `(eval-after-load ',feature
-         '(kmu-define-keys-1 ',mapvar ',args))
-    `(kmu-define-keys-1 ',mapvar ',args)))
-
-(defun kmu-define-keys-1 (keymap args)
-  "Define all keys in ARGS in the keymap KEYMAP.
-KEYMAP may also be a variable whose value is a keymap.
-Also see `kmu-define-keys'."
-  (when (symbolp keymap)
-    (setq keymap (symbol-value keymap)))
-  (unless (keymapp keymap)
-    (error "Not a keymap"))
-  (while args
-    (let ((key (pop args)))
-      (unless (eq key '_)
-        (let ((def (pop args)))
-          (cl-case def
-            (=)
-            ((> :remove)
-             (unless (cl-member-if (lambda (form)
-                                     (and (eq (car form) 'kmu-define-key)
-                                          (equal (car (cddr form)) key)))
-                                   body)
-               (kmu-remove-key keymap key)))
-            (t
-             (kmu-define-key keymap key def))))))))
+  (let (body)
+    (while args
+      (let ((key (pop args)))
+        (unless (eq key '_)
+          (let ((def (pop args)))
+            (cl-case def
+              (=)
+              ((> :remove)
+               (unless (cl-member-if (lambda (form)
+                                       (and (eq (car form) 'kmu-define-key)
+                                            (equal (car (cddr form)) key)))
+                                     body)
+                 (push `(kmu-remove-key ,mapvar ,key) body)))
+              (t
+               (push `(kmu-define-key ,mapvar ,key ',def) body)))))))
+    (if feature
+        `(with-eval-after-load ',feature ,@(nreverse body))
+      (macroexp-progn (nreverse body)))))
 
 ;;; Keymap Mapping
 
