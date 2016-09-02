@@ -438,6 +438,8 @@ Arguments aren't evaluated and therefore don't have to be quoted."
       (let ((key (pop args)))
         (unless (eq key '_)
           (let ((def (pop args)))
+            (while (eq def '_)
+              (setq def (pop args)))
             (cl-case def
               (=)
               ((> :remove)
