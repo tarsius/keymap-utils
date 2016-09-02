@@ -410,28 +410,49 @@ being undefined is being bound to nil like B above."
 (defmacro kmu-define-keys (mapvar feature &rest args)
   "Define all keys in ARGS in the keymap stored in MAPVAR.
 
-MAPVAR is a variable whose value is (or will be) a keymap.
-FEATURE, if non-nil, is the feature provided by the library
-that defines MAPVAR.
+MAPVAR is a variable whose value is a keymap.  If FEATURE is nil,
+then that keymap is modified immediately.  If FEATURE is a symbol
+or string, then the keymap isn't modified until after that
+library/file has been loaded.  The FEATURE has to be specified if
+it isn't always loaded and MAPVAR does not exist until after it
+has been loaded.
 
-ARGS basically has the form (KEY DEF ...), but a KEY can be
-preceded by the symbol `_'.  It has no effect except being
-useful for alignment.
+Conceptually ARGS is a plist of the form (KEY DEF ...), but see
+below for details.
 
 Each KEY is a either an event sequence vector or a string as
-returned by `key-description'.  Each DEF can be anything that can
-be a key's definition (see `define-key').  Alternatively a DEF
-can be `:remove' or `>' in which case the existing definition (if
-any) is removed from KEYMAP using `kmu-remove-key' (which see).
-Finally a DEF can be `=' in which case it and the preceding KEY
-are ignored.  This is useful for documentation purposes.
+returned by `key-description'.
 
-When FEATURE is nil MAPVAR's value is modified right away.
-Otherwise it is modified immediately after FEATURE is loaded.
-FEATURE may actually be a string, see `eval-after-load', though
-normally it is a symbol.
+Each DEF can be anything that can be a key's definition according
+to `kmu-define-key' and `define-key'.
 
-Arguments aren't evaluated and therefore don't have to be quoted."
+A DEF can also the symbol `:remove' in which case the KEY's
+existing definition (if any) is removed from KEYMAP using
+`kmu-remove-key'.
+
+The symbol `>' is a synonym for `:remove', which is useful when
+you want to move a binding from one key to another and make that
+explicit:
+
+  (kmu-define-keys foo-mode-map foo
+    \"a\" > \"b\" moved-command)
+
+A DEF can also be the symbol `=' in which case the binding of the
+preceding KEY is *not* changes.  This is useful when you want to
+make it explicit that an existing binding is kept when creating a
+new binding:
+
+  (kmu-define-keys foo-mode-map foo
+    \"a\" = \"b\" copied-command)
+
+Finally the symbol `_' can appear anywhere in ARGS and this macro
+just treats it as whitespace.  This is useful because it allows
+aligning keys and commands without having to fight the automatic
+indentation mechanism:
+
+  (kmu-define-keys foo-mode-map foo
+    \"a\" > \"b\" moved-command
+    _     \"c\" newly-bound-command)"
   (declare (indent 2))
   (let (body)
     (while args
