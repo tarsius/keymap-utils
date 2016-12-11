@@ -403,8 +403,9 @@ being undefined is being bound to nil like B above."
       (delete key keymap)
     (let* ((prefix (vconcat (butlast key)))
            (submap (lookup-key keymap prefix)))
-      (delete (last key) submap)
-      (when (= (length submap) 1)
+      (when (and (not (eq submap 'ESC-prefix))
+                 (= (length submap) 1))
+        (delete (last key) submap)
         (kmu-remove-key keymap prefix)))))
 
 (defmacro kmu-define-keys (mapvar feature &rest args)
@@ -604,10 +605,6 @@ bindings turn on this mode as early as possible."
          (assoc mapvar kmu-vanilla-keymaps)))
 
 ;;; Various
-
-(defun kmu-merge-esc-into-global-map ()
-  (when (eq (lookup-key (current-global-map) [27]) 'ESC-prefix)
-    (global-set-key [27] esc-map)))
 
 (defun kmu-current-local-mapvar ()
   "Echo the variable bound to the current local keymap."
