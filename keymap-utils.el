@@ -473,7 +473,9 @@ indentation mechanism:
               (t
                (push `(kmu-define-key ,mapvar ,key ',def) body)))))))
     (if feature
-        `(with-eval-after-load ',feature ,@(nreverse body))
+        `(with-eval-after-load ',feature
+           (defvar ,mapvar)
+           ,@(nreverse body))
       (macroexp-progn (nreverse body)))))
 
 ;;; Keymap Mapping
