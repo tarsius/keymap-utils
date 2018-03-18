@@ -44,7 +44,7 @@
   (and (listp   object)
        (keymapp object)))
 
-(defun kmu-prefix-command-p (object &optional boundp)
+(defun kmu-prefix-command-p (object)
   "Return non-nil if OBJECT is a symbol whose function definition is a keymap.
 The value returned is the keymap stored as OBJECT's variable
 definition or else the variable which holds the keymap."
