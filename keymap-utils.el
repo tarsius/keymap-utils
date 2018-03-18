@@ -193,7 +193,7 @@ a symbol from being returned which is dynamically bound to the
 parent keymap."
   (let ((--parmap-- (keymap-parent keymap)))
     (when --parmap--
-      (or (kmu-keymap-variable --parmap-- '--parmap--)
+      (or (apply #'kmu-keymap-variable --parmap-- '--parmap-- exclude)
           (unless need-symbol --parmap--)))))
 
 (defun kmu-mapvar-list (&optional exclude-prefix-commands)
