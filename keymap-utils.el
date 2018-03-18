@@ -1,6 +1,6 @@
 ;;; keymap-utils.el --- keymap utilities
 
-;; Copyright (C) 2008-2017  Jonas Bernoulli
+;; Copyright (C) 2008-2018  Jonas Bernoulli
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Package-Requires: ((cl-lib "0.3"))
@@ -568,6 +568,7 @@ The last event in an event sequence may be a character range."
   (mapc (lambda (e) (apply function e))
         (kmu-keymap-definitions keymap nomenu nomouse)))
 
+;;; _
 (provide 'keymap-utils)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
