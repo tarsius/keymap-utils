@@ -91,8 +91,8 @@ in KEYMAP's parent keymap."
   "In KEYMAP's parent keymap, look up key sequence KEY.
 Return the definition.
 
-Unlike `lookup-key' (which see) this only conciders bindings made in
-KEYMAP's parent keymap and recursivly all parent keymaps of keymaps
+Unlike `lookup-key' (which see) this only considers bindings made in
+KEYMAP's parent keymap and recursively all parent keymaps of keymaps
 events in KEYMAP are bound to."
   (lookup-key (kmu--collect-parmaps keymap) key accept-default))
 
@@ -377,7 +377,7 @@ string like \"?\C-a\"."
 
 (defun kmu-remove-key (keymap key)
   "In KEYMAP, remove key sequence KEY.
-Make the event KEY truely undefined in KEYMAP by removing the
+Make the event KEY truly undefined in KEYMAP by removing the
 respective element of KEYMAP (or a sub-keymap) as opposed to
 merely setting its binding to nil.
 
