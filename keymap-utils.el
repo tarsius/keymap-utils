@@ -1,6 +1,6 @@
 ;;; keymap-utils.el --- keymap utilities
 
-;; Copyright (C) 2008-2018  Jonas Bernoulli
+;; Copyright (C) 2008-2019  Jonas Bernoulli
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Package-Requires: ((cl-lib "0.3"))
