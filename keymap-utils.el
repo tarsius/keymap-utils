@@ -1,4 +1,4 @@
-;;; keymap-utils.el --- keymap utilities
+;;; keymap-utils.el --- keymap utilities          -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2008-2020  Jonas Bernoulli
 
@@ -104,7 +104,7 @@ the parent keymap of any keymap a key in KEYMAP is bound to."
   (cl-labels ((strip-keymap
                (keymap)
                (set-keymap-parent keymap nil)
-               (cl-loop for key being the key-code of keymap
+               (cl-loop for _key being the key-code of keymap
                         using (key-binding binding) do
                         (and (keymapp binding)
                              (not (kmu-prefix-command-p binding))
@@ -143,7 +143,7 @@ Interactively also show the variable in the echo area."
     mapvar))
 
 (defun kmu-keymap-variable (keymap &rest exclude)
-  "Return a symbol whose value is KEYMAP.
+  "Return a dynamically-bound symbol whose value is KEYMAP.
 
 Comparison is done with `eq'.  If there are multiple variables
 whose value is KEYMAP it is undefined which is returned.
@@ -152,34 +152,34 @@ Ignore symbols listed in optional EXCLUDE.  Use this to prevent a
 symbol from being returned which is dynamically bound to KEYMAP."
   (and (keymapp keymap)
        (catch 'found
-         (setq exclude (append '(keymap --symbol--) exclude))
-         (mapatoms (lambda (--symbol--)
-                     (and (not (memq --symbol-- exclude))
-                          (boundp --symbol--)
-                          (eq (symbol-value --symbol--) keymap)
-                          (throw 'found --symbol--)))))))
+         (mapatoms (lambda (sym)
+                     (and (not (memq sym exclude))
+                          (boundp sym)
+                          (eq (symbol-value sym) keymap)
+                          (throw 'found sym)))))))
 
 (defun kmu-keymap-prefix-command (keymap)
-  "Return a symbol whose function definition is KEYMAP.
+  "Return a dynamically-bound symbol whose function definition is KEYMAP.
 
 Comparison is done with `eq'.  If there are multiple symbols
 whose function definition is KEYMAP it is undefined which is
 returned."
   (and (keymapp keymap)
        (catch 'found
-         (mapatoms (lambda (--symbol--)
-                     (and (fboundp --symbol--)
-                          (eq (symbol-function --symbol--) keymap)
-                          (throw 'found --symbol--)))))))
+         (mapatoms (lambda (sym)
+                     (and (fboundp sym)
+                          (eq (symbol-function sym) keymap)
+                          (throw 'found sym)))))))
 
 (defun kmu-keymap-parent (keymap &optional need-symbol &rest exclude)
   "Return the parent keymap of KEYMAP.
 
-If a variable exists whose value is KEYMAP's parent keymap return
-that.  Otherwise if KEYMAP does not have a parent keymap return
-nil.  Otherwise if KEYMAP has a parent keymap but no variable is
-bound to it return the parent keymap, unless optional NEED-SYMBOL
-is non-nil in which case nil is returned.
+If a dynamically-bound variable exists whose value is KEYMAP's
+parent keymap return that.  Otherwise if KEYMAP does not have
+a parent keymap return nil.  Otherwise if KEYMAP has a parent
+keymap but no variable is bound to it return the parent keymap,
+unless optional NEED-SYMBOL is non-nil in which case nil is
+returned.
 
 Comparison is done with `eq'.  If there are multiple variables
 whose value is the keymap it is undefined which is returned.
@@ -187,10 +187,10 @@ whose value is the keymap it is undefined which is returned.
 Ignore symbols listed in optional EXCLUDE.  Use this to prevent
 a symbol from being returned which is dynamically bound to the
 parent keymap."
-  (let ((--parmap-- (keymap-parent keymap)))
-    (and --parmap--
-         (or (apply #'kmu-keymap-variable --parmap-- '--parmap-- exclude)
-             (and (not need-symbol) --parmap--)))))
+  (let ((parent (keymap-parent keymap)))
+    (and parent
+         (or (apply #'kmu-keymap-variable parent exclude)
+             (and (not need-symbol) parent)))))
 
 (defun kmu-mapvar-list (&optional exclude-prefix-commands)
   "Return a list of all keymap variables.
