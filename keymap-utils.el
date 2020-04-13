@@ -239,9 +239,9 @@ For an approximate inverse of this, see `kmu-parse-key-description'."
              (not (consp (cdr last))))
         ;; Handle character ranges.
         (progn
-          (setq keys   (append keys nil)
-                prefix (vconcat prefix (butlast keys))
-                keys   (car (last keys)))
+          (setq keys   (append keys nil))
+          (setq prefix (vconcat prefix (butlast keys)))
+          (setq keys   (car (last keys)))
           (concat (and prefix (> (length prefix) 1)
                        (concat (kmu-key-description prefix) " "))
                   (kmu-key-description (vector (car keys))) ".."
