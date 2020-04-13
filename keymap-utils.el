@@ -1,6 +1,6 @@
 ;;; keymap-utils.el --- keymap utilities
 
-;; Copyright (C) 2008-2019  Jonas Bernoulli
+;; Copyright (C) 2008-2020  Jonas Bernoulli
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Package-Requires: ((cl-lib "0.3"))
@@ -150,16 +150,16 @@ whose value is KEYMAP it is undefined which is returned.
 
 Ignore symbols listed in optional EXCLUDE.  Use this to prevent a
 symbol from being returned which is dynamically bound to KEYMAP."
-  (when (keymapp keymap)
-    (setq exclude (append '(keymap --match-- --symbol--) exclude))
-    (let (--match--)
-      (cl-do-symbols (--symbol--)
-        (and (not (memq --symbol-- exclude))
-             (boundp --symbol--)
-             (eq (symbol-value --symbol--) keymap)
-             (setq --match-- --symbol--)
-             (cl-return nil)))
-      --match--)))
+  (and (keymapp keymap)
+       (let (--match--)
+         (setq exclude (append '(keymap --match-- --symbol--) exclude))
+         (cl-do-symbols (--symbol--)
+           (and (not (memq --symbol-- exclude))
+                (boundp --symbol--)
+                (eq (symbol-value --symbol--) keymap)
+                (setq --match-- --symbol--)
+                (cl-return nil)))
+         --match--)))
 
 (defun kmu-keymap-prefix-command (keymap)
   "Return a symbol whose function definition is KEYMAP.
@@ -167,14 +167,14 @@ symbol from being returned which is dynamically bound to KEYMAP."
 Comparison is done with `eq'.  If there are multiple symbols
 whose function definition is KEYMAP it is undefined which is
 returned."
-  (when (keymapp keymap)
-    (let (--match--)
-      (cl-do-symbols (--symbol--)
-        (and (fboundp --symbol--)
-             (eq (symbol-function --symbol--) keymap)
-             (setq --match-- --symbol--)
-             (cl-return nil)))
-      --match--)))
+  (and (keymapp keymap)
+       (let (--match--)
+         (cl-do-symbols (--symbol--)
+           (and (fboundp --symbol--)
+                (eq (symbol-function --symbol--) keymap)
+                (setq --match-- --symbol--)
+                (cl-return nil)))
+         --match--)))
 
 (defun kmu-keymap-parent (keymap &optional need-symbol &rest exclude)
   "Return the parent keymap of KEYMAP.
@@ -192,9 +192,9 @@ Ignore symbols listed in optional EXCLUDE.  Use this to prevent
 a symbol from being returned which is dynamically bound to the
 parent keymap."
   (let ((--parmap-- (keymap-parent keymap)))
-    (when --parmap--
-      (or (apply #'kmu-keymap-variable --parmap-- '--parmap-- exclude)
-          (unless need-symbol --parmap--)))))
+    (and --parmap--
+         (or (apply #'kmu-keymap-variable --parmap-- '--parmap-- exclude)
+             (and (not need-symbol) --parmap--)))))
 
 (defun kmu-mapvar-list (&optional exclude-prefix-commands)
   "Return a list of all keymap variables.
@@ -203,8 +203,8 @@ If optional EXCLUDE-PREFIX-COMMANDS is non-nil exclude all
 variables whose variable definition is also the function
 definition of a prefix command."
   (let ((prefix-commands
-         (when exclude-prefix-commands
-           (kmu-prefix-command-list))))
+         (and exclude-prefix-commands
+              (kmu-prefix-command-list))))
     (cl-loop for symbol being the symbols
              when (kmu-keymap-variable-p symbol)
              when (not (memq symbol prefix-commands))
