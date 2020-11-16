@@ -373,9 +373,10 @@ string like \"?\C-a\"."
 
 (defun kmu-remove-key (keymap key)
   "In KEYMAP, remove key sequence KEY.
+
 Make the event KEY truly undefined in KEYMAP by removing the
-respective element of KEYMAP (or a sub-keymap) as opposed to
-merely setting its binding to nil.
+respective element of KEYMAP (or a sub-keymap or a bound prefix
+command) as opposed to merely setting its binding to nil.
 
 There are several ways in which a key can be \"undefined\":
 
@@ -411,7 +412,10 @@ being undefined is being bound to nil like B above."
       (delete key keymap)
     (let* ((prefix (vconcat (butlast key)))
            (submap (lookup-key keymap prefix)))
-      (unless (eq submap 'ESC-prefix)
+      (if (not (keymapp submap))
+          (error "Cannot remove %; %s is not bound to a keymap." key prefix)
+        (when (symbolp submap)
+          (setq submap (symbol-function submap)))
         (delete (last key) submap)
         (when (= (length submap) 1)
           (kmu-remove-key keymap prefix))))))
