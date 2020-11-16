@@ -411,10 +411,10 @@ being undefined is being bound to nil like B above."
       (delete key keymap)
     (let* ((prefix (vconcat (butlast key)))
            (submap (lookup-key keymap prefix)))
-      (when (and (not (eq submap 'ESC-prefix))
-                 (= (length submap) 1))
+      (unless (eq submap 'ESC-prefix)
         (delete (last key) submap)
-        (kmu-remove-key keymap prefix)))))
+        (when (= (length submap) 1)
+          (kmu-remove-key keymap prefix))))))
 
 (defmacro kmu-define-keys (mapvar feature &rest args)
   "Define all keys in ARGS in the keymap stored in MAPVAR.
