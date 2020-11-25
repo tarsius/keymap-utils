@@ -1,6 +1,11 @@
 ;;; keymap-utils.el --- keymap utilities          -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2008-2020  Jonas Bernoulli
+;; Copyright (C) 2008-2020 Jonas Bernoulli
+
+;; Includes code taken from naked.el, which is
+;; Copyright (C) 2011-2020 Drew Adams
+;; and which in turn derives from edmacro.el, which is
+;; Copyright (C) 1993-2020 Free Software Foundation, Inc.
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Package-Requires: ((cl-lib "0.3"))
