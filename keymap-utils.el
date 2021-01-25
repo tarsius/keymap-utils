@@ -1,6 +1,6 @@
 ;;; keymap-utils.el --- keymap utilities          -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2008-2020 Jonas Bernoulli
+;; Copyright (C) 2008-2021 Jonas Bernoulli
 
 ;; Includes code taken from naked.el, which is
 ;; Copyright (C) 2011-2020 Drew Adams
@@ -418,7 +418,7 @@ being undefined is being bound to nil like B above."
     (let* ((prefix (vconcat (butlast key)))
            (submap (lookup-key keymap prefix)))
       (if (not (keymapp submap))
-          (error "Cannot remove %; %s is not bound to a keymap." key prefix)
+          (error "Cannot remove %; %s is not bound to a keymap" key prefix)
         (when (symbolp submap)
           (setq submap (symbol-function submap)))
         (delete (last key) submap)
