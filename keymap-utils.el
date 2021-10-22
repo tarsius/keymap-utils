@@ -435,8 +435,8 @@ library/file has been loaded.  The FEATURE has to be specified if
 it isn't always loaded and MAPVAR does not exist until after it
 has been loaded.
 
-Conceptually ARGS is a plist of the form (KEY DEF ...), but see
-below for details.
+The simplest form ARGS can take is (KEY DEF ...), but see below
+for details.
 
 Each KEY is a either an event sequence vector or a string as
 returned by `key-description'.
@@ -444,7 +444,7 @@ returned by `key-description'.
 Each DEF can be anything that can be a key's definition according
 to `kmu-define-key' and `define-key'.
 
-A DEF can also the symbol `:remove' in which case the KEY's
+A DEF can also be the symbol `:remove' in which case the KEY's
 existing definition (if any) is removed from KEYMAP using
 `kmu-remove-key'.
 
