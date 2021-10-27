@@ -83,6 +83,15 @@ A sparse keymap is a keymap whose second element is not a char-table."
        (or (stringp (car object))
            (eq (car object) 'menu-item))))
 
+(defun kmu-char-table-event-p (keymap event)
+  "Return t if EVENT is or would be stored in KEYMAP's char-table.
+If KEYMAP is a sparse keymap or, for a full keymap, if EVENT
+is or would be stored outside its char-table, then return nil.
+EVENT should be a character or symbol."
+  (and (not (symbolp event))
+       (char-table-p (cadr keymap))
+       (ignore-errors (and (char-table-range (cadr keymap) event) t))))
+
 ;;; Key Lookup
 
 (defun kmu-lookup-local-key (keymap key &optional accept-default)
@@ -414,7 +423,7 @@ being undefined is being bound to nil like B above."
                            (list k)))
                        key))
   (if (= (length key) 1)
-      (unless (kmu-full-keymap-p keymap)
+      (unless (kmu-char-table-event-p keymap (car key))
         (cl-delete key keymap :count 1 :test #'equal))
     (let* ((prefix (vconcat (butlast key)))
            (submap (lookup-key keymap prefix)))
@@ -422,7 +431,7 @@ being undefined is being bound to nil like B above."
           (error "Cannot remove %; %s is not bound to a keymap" key prefix)
         (when (symbolp submap)
           (setq submap (symbol-function submap)))
-        (unless (kmu-full-keymap-p keymap)
+        (unless (kmu-char-table-event-p keymap (car (last key)))
           (cl-delete (last key) submap :count 1 :test #'equal))
         (when (= (length submap) 1)
           (kmu-remove-key keymap prefix))))))
