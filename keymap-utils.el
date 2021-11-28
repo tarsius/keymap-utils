@@ -450,7 +450,8 @@ The simplest form ARGS can take is (KEY DEF ...), but see below
 for details.
 
 Each KEY is a either an event sequence vector or a string as
-returned by `key-description'.
+returned by `kmu-key-description'.  Keys are bound using
+`kmu-define-key'.
 
 Each DEF can be anything that can be a key's definition according
 to `kmu-define-key' and `define-key'.
