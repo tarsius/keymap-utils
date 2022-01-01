@@ -1,6 +1,6 @@
 ;;; keymap-utils.el --- keymap utilities          -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2008-2021 Jonas Bernoulli
+;; Copyright (C) 2008-2022 Jonas Bernoulli
 
 ;; Includes code taken from naked.el, which is
 ;; Copyright (C) 2011-2020 Drew Adams
