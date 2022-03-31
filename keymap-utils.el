@@ -115,31 +115,29 @@ events in KEYMAP are bound to."
 
 This not only removes the parent keymap of KEYMAP but also recursively
 the parent keymap of any keymap a key in KEYMAP is bound to."
-  (cl-labels ((strip-keymap
-               (keymap)
-               (set-keymap-parent keymap nil)
-               (cl-loop for _key being the key-code of keymap
-                        using (key-binding binding) do
-                        (and (keymapp binding)
-                             (not (kmu-prefix-command-p binding))
-                             (strip-keymap binding)))
-               keymap))
+  (cl-labels ((strip-keymap (keymap)
+                (set-keymap-parent keymap nil)
+                (cl-loop for _key being the key-code of keymap
+                         using (key-binding binding) do
+                         (and (keymapp binding)
+                              (not (kmu-prefix-command-p binding))
+                              (strip-keymap binding)))
+                keymap))
     (strip-keymap (copy-keymap keymap))))
 
 (defun kmu--collect-parmaps (keymap)
   "Return a copy of KEYMAP with all local bindings removed."
-  (cl-labels ((collect-parmaps
-               (keymap)
-               (let ((new-keymap (make-sparse-keymap)))
-                 (set-keymap-parent new-keymap (keymap-parent keymap))
-                 (set-keymap-parent keymap nil)
-                 (cl-loop for key being the key-code of keymap
-                          using (key-binding binding) do
-                          (and (keymapp binding)
-                               (not (kmu-prefix-command-p binding))
-                               (define-key new-keymap (vector key)
-                                 (collect-parmaps binding))))
-                 new-keymap)))
+  (cl-labels ((collect-parmaps (keymap)
+                (let ((new-keymap (make-sparse-keymap)))
+                  (set-keymap-parent new-keymap (keymap-parent keymap))
+                  (set-keymap-parent keymap nil)
+                  (cl-loop for key being the key-code of keymap
+                           using (key-binding binding) do
+                           (and (keymapp binding)
+                                (not (kmu-prefix-command-p binding))
+                                (define-key new-keymap (vector key)
+                                            (collect-parmaps binding))))
+                  new-keymap)))
     (collect-parmaps (copy-keymap keymap))))
 
 ;;; Keymap Variables
