@@ -229,7 +229,7 @@ definition of a prefix command."
 Prompt with PROMPT.  A keymap variable is one for which
 `kmu-keymap-variable-p' returns non-nil."
   (let ((mapvar (intern (completing-read prompt obarray
-                                         'kmu-keymap-variable-p t nil nil))))
+                                         #'kmu-keymap-variable-p t nil nil))))
     (if (eq mapvar '##)
         (error "No mapvar selected")
       mapvar)))
@@ -531,11 +531,11 @@ indentation mechanism:
               (setq beg (car key) end (cdr key))
             (when (integerp key)
               (setq beg key end key)
-              (while (and (setq mem (car (cl-member (1- beg) v :key 'car)))
+              (while (and (setq mem (car (cl-member (1- beg) v :key #'car)))
                           (equal (cadr mem) def))
                 (cl-decf beg)
                 (setq v (remove mem v)))
-              (while (and (setq mem (car (cl-member (1+ end) v :key 'car)))
+              (while (and (setq mem (car (cl-member (1+ end) v :key #'car)))
                           (equal (cadr mem) def))
                 (cl-incf end)
                 (setq v (remove mem v)))))
