@@ -8,7 +8,7 @@
 ;; Copyright (C) 1993-2020 Free Software Foundation, Inc.
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
-;; Package-Requires: ((cl-lib "0.3"))
+;; Package-Requires: ((emacs "25.1"))
 ;; Homepage: https://github.com/tarsius/keymap-utils
 ;; Keywords: convenience, extensions
 
