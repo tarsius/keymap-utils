@@ -1,31 +1,32 @@
-;;; keymap-utils.el --- keymap utilities          -*- lexical-binding: t; -*-
+;;; keymap-utils.el --- Keymap utilities  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2008-2022 Jonas Bernoulli
 
-;; Includes code taken from naked.el, which is
-;; Copyright (C) 2011-2020 Drew Adams
-;; and which in turn derives from edmacro.el, which is
-;; Copyright (C) 1993-2020 Free Software Foundation, Inc.
-
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
-;; Package-Requires: ((emacs "25.1") (compat "28.1.1.0"))
 ;; Homepage: https://github.com/tarsius/keymap-utils
-;; Keywords: convenience, extensions
+;; Keywords: convenience extensions
 
-;; This file is not part of GNU Emacs.
+;; Package-Requires: ((emacs "25.1") (compat "28.1.1.0"))
 
-;; This file is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
+;; SPDX-License-Identifier: GPL-3.0-or-later
 
+;; This file is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published
+;; by the Free Software Foundation, either version 3 of the License,
+;; or (at your option) any later version.
+;;
 ;; This file is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-
+;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
+
+;; This file contains code taken from nakes.el, which is
+;; Copyright (C) 2011-2020 Drew Adams
+;; and which in turn derives from edmacro.el, which is
+;; Copyright (C) 1993-2020 Free Software Foundation, Inc.
 
 ;;; Commentary:
 
