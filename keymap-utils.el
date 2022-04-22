@@ -251,7 +251,7 @@ For an approximate inverse of this, see `kmu-parse-key-description'."
           (setq keys   (append keys nil))
           (setq prefix (vconcat prefix (butlast keys)))
           (setq keys   (car (last keys)))
-          (concat (and prefix (> (length prefix) 1)
+          (concat (and prefix (length> prefix 1)
                        (concat (kmu-key-description prefix) " "))
                   (kmu-key-description (vector (car keys))) ".."
                   (kmu-key-description (vector (cdr keys)))))
@@ -421,7 +421,7 @@ being undefined is being bound to nil like B above."
                              (list ?\e (- k ?\M-\0))
                            (list k)))
                        key))
-  (if (= (length key) 1)
+  (if (length= key 1)
       (unless (kmu-char-table-event-p keymap (car key))
         (cl-delete key keymap :count 1 :test #'equal))
     (let* ((prefix (vconcat (butlast key)))
@@ -432,7 +432,7 @@ being undefined is being bound to nil like B above."
           (setq submap (symbol-function submap)))
         (unless (kmu-char-table-event-p keymap (car (last key)))
           (cl-delete (last key) submap :count 1 :test #'equal))
-        (when (= (length submap) 1)
+        (when (length= submap 1)
           (kmu-remove-key keymap prefix))))))
 
 (defmacro kmu-define-keys (mapvar feature &rest args)
