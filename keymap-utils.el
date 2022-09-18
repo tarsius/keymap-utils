@@ -468,7 +468,7 @@ explicit:
     \"a\" > \"b\" moved-command)
 
 A DEF can also be the symbol `=' in which case the binding of the
-preceding KEY is *not* changes.  This is useful when you want to
+preceding KEY is *not* changed.  This is useful when you want to
 make it explicit that an existing binding is kept when creating a
 new binding:
 
