@@ -1,6 +1,6 @@
 ;;; keymap-utils.el --- Keymap utilities  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2022 Jonas Bernoulli
+;; Copyright (C) 2008-2023 Jonas Bernoulli
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Homepage: https://github.com/tarsius/keymap-utils
