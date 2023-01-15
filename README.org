@@ -2,3 +2,8 @@
 
 This package provides some utilities useful for inspecting and
 modifying keymaps.
+
+#+html: <br><br>
+#+html: <a href="https://github.com/tarsius/keymap-utils/actions/workflows/compile.yml"><img alt="Compile" src="https://github.com/tarsius/keymap-utils/actions/workflows/compile.yml/badge.svg"/></a>
+#+html: <a href="https://stable.melpa.org/#/keymap-utils"><img alt="MELPA Stable" src="https://stable.melpa.org/packages/keymap-utils-badge.svg"/></a>
+#+html: <a href="https://melpa.org/#/keymap-utils"><img alt="MELPA" src="https://melpa.org/packages/keymap-utils-badge.svg"/></a>
