@@ -145,12 +145,13 @@ the parent keymap of any keymap a key in KEYMAP is bound to."
 ;;; Keymap Variables
 
 ;;;###autoload
-(defun kmu-current-local-mapvar ()
+(defun kmu-current-local-mapvar (&optional interactive)
   "Return the variable bound to the current local keymap.
-Interactively also show the variable in the echo area."
-  (interactive)
+Interactively also show the variable in the echo area.
+\n(fn)"
+  (interactive (list t))
   (let ((mapvar (kmu-keymap-variable (current-local-map))))
-    (when (called-interactively-p 'any)
+    (when interactive
       (message (if mapvar
                    (symbol-name mapvar)
                  "Cannot determine current local keymap variable")))
