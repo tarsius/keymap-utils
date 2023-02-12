@@ -236,9 +236,9 @@ Prompt with PROMPT.  A keymap variable is one for which
         (error "No mapvar selected")
       mapvar)))
 
-;;; Defining Bindings
+;;; Editing Keymaps
 
-(defmacro kmu-define-keys (mapvar feature &rest args)
+(defmacro kmu-edit-keymap (mapvar feature &rest args)
   "Define all keys in ARGS in the keymap stored in MAPVAR.
 
 MAPVAR is a variable whose value is a keymap.  If FEATURE is nil,
@@ -301,7 +301,7 @@ indentation mechanism:
                                      body)
                  (push `(keymap-unset ,mapvar ,key t) body)))
               (t
-               (push `(keymap-set ,mapvar ,key ',def) body)))))))
+               (push `(keymap-set ,mapvar ,key ,def) body)))))))
     (if feature
         `(with-eval-after-load ',feature
            (defvar ,mapvar)
