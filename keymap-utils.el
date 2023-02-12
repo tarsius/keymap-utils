@@ -380,6 +380,19 @@ The last event in an event sequence may be a character range."
   (mapc (lambda (e) (apply function e)) (kmu-keymap-bindings keymap)))
 
 (defun kmu-keymap-definitions (keymap &optional nomenu nomouse)
+  "Return a list of all definitions in KEYMAP.
+
+Each element has the form (DEF KEY...), where eacho KEY is an
+event sequence (a vector) that is bound to DEF.
+
+When the definition of an event is another keymap list then
+recursively build up an event sequence and instead of returning
+an element with the initial event and its definition once, return
+an element for each event sequence and the definition it is bound
+to.
+
+The last event in an event sequence may be a character range.
+\n(fn KEYMAP)"
   (let (bindings)
     (kmu-map-keymap (lambda (key def)
                       (cond ((and nomenu (kmu-menu-binding-p def)))
