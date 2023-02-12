@@ -201,10 +201,9 @@ whose value is the keymap it is undefined which is returned.
 Ignore symbols listed in optional EXCLUDE.  Use this to prevent
 a symbol from being returned which is dynamically bound to the
 parent keymap."
-  (let ((parent (keymap-parent keymap)))
-    (and parent
-         (or (apply #'kmu-keymap-variable parent exclude)
-             (and (not need-symbol) parent)))))
+  (and-let* ((parent (keymap-parent keymap)))
+    (or (apply #'kmu-keymap-variable parent exclude)
+        (and (not need-symbol) parent))))
 
 (defun kmu-mapvar-list (&optional exclude-prefix-commands)
   "Return a list of all keymap variables.
