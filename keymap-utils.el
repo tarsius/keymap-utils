@@ -312,6 +312,20 @@ indentation mechanism:
 (defvar kmu-char-range-minimum 9)
 
 (defun kmu-keymap-bindings (keymap &optional prefix)
+  "Return a list of all event sequence bindings in KEYMAP.
+
+Each element has the form (KEY DEF), where KEY is the event
+sequence that is bound (a vector), and DEF is the definition it
+is bound to.
+
+When the definition of an event is another keymap list then
+recursively build up an event sequence and instead of returning
+an element with the initial event and its definition once, return
+an element for each event sequence and the definition it is bound
+to.
+
+The last event in an event sequence may be a character range.
+\n(fn KEYMAP)"
   (let ((min (1- kmu-char-range-minimum))
         v vv)
     (map-keymap-internal
