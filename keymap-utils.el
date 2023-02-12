@@ -380,16 +380,15 @@ The last event in an event sequence may be a character range."
   (mapc (lambda (e) (apply function e)) (kmu-keymap-bindings keymap)))
 
 (defun kmu-keymap-definitions (keymap &optional nomenu nomouse)
-  (let (bs)
+  (let (bindings)
     (kmu-map-keymap (lambda (key def)
                       (cond ((and nomenu (kmu-menu-binding-p def)))
                             ((and nomouse (mouse-event-p (aref key 0))))
-                            (t
-                             (let ((a (assq def bs)))
-                               (if a (setcdr a (cons key (cdr a)))
-                                 (push (list def key) bs))))))
+                            ((if-let ((elt (assq def bindings)))
+                                 (setcdr elt (cons key (cdr elt)))
+                               (push (list def key) bindings)))))
                     keymap)
-    bs))
+    bindings))
 
 ;;; _
 (provide 'keymap-utils)
