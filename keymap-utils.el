@@ -382,10 +382,6 @@ The last event in an event sequence may be a character range."
                     keymap)
     bs))
 
-(defun kmu-map-keymap-definitions (function keymap &optional nomenu nomouse)
-  (mapc (lambda (e) (apply function e))
-        (kmu-keymap-definitions keymap nomenu nomouse)))
-
 ;;; _
 (provide 'keymap-utils)
 ;; Local Variables:
