@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2008-2024 Jonas Bernoulli
 
-;; Author: Jonas Bernoulli <jonas@bernoul.li>
+;; Author: Jonas Bernoulli <emacs.keymap-utils@jonas.bernoulli.dev>
 ;; Homepage: https://github.com/tarsius/keymap-utils
 ;; Keywords: convenience extensions
 
