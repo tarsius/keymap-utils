@@ -101,7 +101,7 @@ made in KEYMAP's parent keymap."
                  key accept-default no-remap position))
 
 (defun kmu-lookup-parent-key ( keymap key
-                              &optional accept-default no-remap position)
+                               &optional accept-default no-remap position)
   "In KEYMAP's parent keymap, look up key sequence KEY.
 Return the definition.
 
@@ -137,7 +137,7 @@ the parent keymap of any keymap a key in KEYMAP is bound to."
                            (and (keymapp binding)
                                 (not (kmu-prefix-command-p binding))
                                 (define-key new-keymap (vector key)
-                                            (collect-parmaps binding))))
+                                  (collect-parmaps binding))))
                   new-keymap)))
     (collect-parmaps (copy-keymap keymap))))
 
