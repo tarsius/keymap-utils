@@ -406,5 +406,6 @@ The last event in an event sequence may be a character range.
 (provide 'keymap-utils)
 ;; Local Variables:
 ;; indent-tabs-mode: nil
+;; lisp-indent-local-overrides: ((cond . 0) (interactive . 0))
 ;; End:
 ;;; keymap-utils.el ends here
