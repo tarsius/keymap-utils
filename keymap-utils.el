@@ -6,10 +6,10 @@
 ;; Homepage: https://github.com/tarsius/keymap-utils
 ;; Keywords: convenience extensions
 
-;; Package-Version: 4.1.4
+;; Package-Version: 4.1.5
 ;; Package-Requires: (
 ;;     (emacs  "28.1")
-;;     (compat "31.0")
+;;     (compat "31.1")
 ;;     (llama   "1.0"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
