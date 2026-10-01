@@ -5,5 +5,6 @@ modifying keymaps.
 
 #+html: <br><br>
 #+html: <a href="https://github.com/tarsius/keymap-utils/actions/workflows/compile.yml"><img alt="Compile" src="https://github.com/tarsius/keymap-utils/actions/workflows/compile.yml/badge.svg"/></a>
-#+html: <a href="https://stable.melpa.org/#/keymap-utils"><img alt="MELPA Stable" src="https://stable.melpa.org/packages/keymap-utils-badge.svg"/></a>
-#+html: <a href="https://melpa.org/#/keymap-utils"><img alt="MELPA" src="https://melpa.org/packages/keymap-utils-badge.svg"/></a>
+#+html: <a href="https://snapshots.melpa.org/#/keymap-utils"><img alt="MELPA Snapshots" src="https://snapshots.melpa.org/packages/keymap-utils-badge.svg"/></a>
+#+html: <a href="https://releases.melpa.org/#/keymap-utils"><img alt="MELPA Releases" src="https://releases.melpa.org/packages/keymap-utils-badge.svg"/></a>
+#+html: <a href="https://emacsair.me/human"><img alt="human made" src="https://emacsair.me/assets/badges/human.svg"/></a>
